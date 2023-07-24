@@ -183,7 +183,7 @@ a un absurdo dependiendo si $f_{k}(\overrightarrow{xz}) = 0$ o no.
 Entonces, si $f_{k}(\overrightarrow{xz}) = 0$ como $\underbrace{s\ldots z}_{f_{k}}x$ es ca. 
 Entonces, $zx$ es backward, $s\ldots \overleftarrow{zx}$, entonces 
 $f_{k+1}(\overrightarrow{xz}) > 0$. Para pasar de $f_{k}$ a $f_{k+1}$ usamos un ca, 
-$s\ldots \overrightarrow{xz} \ldots t\Rightarrow_{EK} d_{k}(z) = d_{k}(x)+1$ 
+$s\ldots \overleftarrow{xz} \ldots t\Rightarrow_{EK} d_{k}(z) = d_{k}(x)+1$ 
 y es un absurdo como antes. 
 \medskip
 
@@ -400,8 +400,8 @@ complejidada en dos:
     \item [2.] $P=$ complejidad de fwb parcial.
 \end{itemize}
 
-$P$ es facil, en cada fwb solo se ejecuta una vez, entonces es $O(1)$ pero se 
-puede realizar $n-2$ veces en una ola, entonces:
+$P$ es facil, en cada fwb solo se ejecuta una vez, entonces es $O(1)$ pero una 
+ola puede realizar $n-2$ fwb, entonces:
 \begin{align*}
     P &= \#\,\text{total de fwb}\\
     &= \#\,\text{de fwb en una ola} * \,\text{olas}\\
@@ -426,7 +426,7 @@ Y con respecto a $V$, cada vez que lo hacemos en un $bwb(x)$ borramos un
 vertice de $M(x)$ (vecinos hacia atrás). Por lo que esta acotado por:
 $$O(\#\,\text{número de elementos máximos de $M(x)$}) = O(d(x)) = O(m)$$
 Un detalle importante es que $\Gamma^{+}(x)$ es fijo y le voy sacando elementos y 
-$M(x)$ al inicio es vacio, pero le voy agregando vertices.
+$M(x)$ al inicio es vacio, pero le voy agregando y luego removiendo vertices.
 \medskip
 
 Supongamos que $\overrightarrow{yx}$ se vacía, entonces $y$ se borra de $M(x)$,
