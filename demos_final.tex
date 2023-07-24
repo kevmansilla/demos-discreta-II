@@ -1141,7 +1141,7 @@ pero terminaremos agregando UN lado extra al matching.
 \medskip
 
 Restar el $min$ de una fila es $O(n)$, entonces restar $min$ de 
-cada fila es $O(n^2)$. Es el mismo análisis para restar $min$ a cada columna 
+cada fila es $O(n^2)$. Es el mismo análisis para las columnas 
 es $O(n^{2})$.
 \medskip
 
@@ -1213,7 +1213,7 @@ Entonces usamos $RF(x)$ que indique cuanto restarle a la fila $x$ y $SC(x)$ que 
 cuanto sumarle a la columna $y$.
 \medskip
 
-Restar $m$ de $S$ es simplemente hacer $RF(x) += m,\, \forall x\in S$ esto es $O(n)$.
+Restar $m$ de $S$ es simplemente hacer $RF(x) -= m,\, \forall x\in S$ esto es $O(n)$.
 
 Sumar $m$ a $\Gamma(S)$ es simplemente hacer $SC(y) += m,\, \forall y\in \Gamma(S)$ esto es $O(n)$.
 \medskip
@@ -1277,7 +1277,7 @@ $\square$
 %%%%%% 13 %%%%%%
 \begin{itemize}
     \item [13)] \textbf{Probar que si $H$ es matriz de chequeo de $C$, entonces
-        $$\delta(C) = \min {j: \exists \,\,\text{un conjunto de $j$ columnas LD de $H$}}$$
+        $$\delta(C) = \min \llaves{j: \exists \,\,\text{un conjunto de $j$ columnas LD de $H$}}$$
         (LD es linealmente dependiente)}
     \label{dem:delta}
 \end{itemize}
@@ -1288,8 +1288,6 @@ Un código es lineal si es un subespacio vectorial de $\llaves{0,1}^{n}$.
 \end{definition}
 
 \underline{Propiedad} $C$ lineal $\Rightarrow \delta(C) = \min \llaves{|v|: v\in C, v\neq 0}$.
-es lineal en el orden de palabras, sino es lineal $n\times n$ comparaciones, donde 
-$n$ es el número de palabras.
 \medskip
 
 \underline{Prueba:}
