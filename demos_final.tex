@@ -1,0 +1,1954 @@
+\documentclass[12pt,a4paper]{article}
+\input{packages.tex}
+\author{Mansilla, Kevin Gaston\footnote{\href{mailto:kevingston47@gmail.com}{kevingston47@gmail.com}}}
+\title{Discreta II: Demos final}
+\date{\today}
+\begin{document}
+\maketitle{}
+
+%%%%%% 1 %%%%%%
+\begin{itemize}
+    \item [1)] \textbf{Cual es la complejidad del algoritmo de Edmonds-Karp? Probarlo (
+        Nota: en la prueba se definen unas distancias, y se prueba que esas 
+        distancias no disminuyen en pasos sucesivos de EK. Ud. puede usar esto 
+        sin necesidad de probarlo.)}
+        \label{dem:EK}
+\end{itemize}
+
+Diremos que un lado se vuelve critico al pasar de $f_{k}$ a $f_{k+1}$ si 
+se \textbf{satura} o \textbf{vacia}. Entonces cuántas veces puede un lado volverse 
+crítico?
+\medskip
+
+Supongamos que un lado se vuelve critico en el paso $k$ y luego en el paso $j$, 
+donde $k < j$. Entonces:
+$$s \ldots \underbrace{xz}_{critico}\ldots t$$
+pasa de $f_{k}$ a $f_{k+1}$.
+\medskip
+
+Si $\overrightarrow{xz} \in E$ se satura tenemos que $d_{k}(z) = d_{k}(x)+1$, para 
+volverse critico otra vez, o bien se vacia o bien se vuelve a saturar, pero para 
+esto último primero tiene que devolver flujo.
+\medskip
+
+En cualquier caso, $\exists l: k \< l \< j$ en donde devolvio flujo, es decir, tal 
+que para pasar de $f_{l}$ a $f_{l+1}$, devolvimos flujo (lado backward), como se 
+muestra en el siguiente camino:
+$$s \ldots \overleftarrow{zx} \ldots t, f_{l} \to f_{l+1}$$
+
+por EK sabemos que $d_{l}(x) = d_{l}(z) + 1$ (distancias no disminuyen).
+\medskip
+
+Si lo que tenemos es $\overleftarrow{zx} \in E$ (backward), con un camino 
+$s \ldots \overleftarrow{zx} \ldots t \Rightarrow d_{k}(x) = d_{k}(z) +1$ el 
+analisis es similar, se volvio critico porque se vacio, entonces para volver a 
+ser critico debe saturarse o volverse a vaciar, para esto último debe haber 
+enviado flujo.
+\medskip
+
+Entonces, $\exists l: k \< l \< j$ para pasar de $f_{l}$ a $f_{l+1}$, enviamos 
+flujo, como se muestra en el siguiente camino:
+$$s\ldots \overrightarrow{xz} \ldots t, f_{l} \to f_{l+1}$$
+
+Entonces, por EK sabemos: $d_{l}(z) = d_{l}(x) + 1$.
+\medskip
+
+En cualquier caso, tenemos en terminos de $f_{k}$ y $f_{k+1}$
+\begin{align*}
+    d_{k}(z) &= d_{k}(x) +1 \,\,(\text{fordward})\\
+    d_{k}(x) &= d_{k}(z) +1 \,\,(\text{backward})
+\end{align*}
+Entonces
+\begin{align*}
+    d_{l}(t) = d_{l}(x) + b_{l}(x) &= d_{l}(z) + 1 + b_{l}(x)\\
+    &=\llaves{\text{Como las distancias no disminuyen}}\\
+    &\> d_{k}(z) + b_{k}(x) + 1 = d_{k}(x) + 1 + b_{k}(x) +1 = d_{k}(x) + b_{k}(x)+2\\
+    &\Rightarrow d_{l}(t) = d_{k}(t) +2
+\end{align*}
+
+Conclusión: Una vez que un lado se vuelve crítico solo puede volver a ser crítico 
+si la distancia entre $s$ y $t$ aumenta en por lo menos $2$. Un lado puede 
+volverse crítico a lo sumo $\frac{n-1}{2}$ veces entonces es $O(n)$.
+\medskip
+
+\begin{itemize}
+    \item [1.] Para pasar de $f_{k}$ a $f_{k+1}$ al menos un lado se vuelve crítico.
+    \item [2.] Hay $m$ lados.
+    \item [3.] Cada lado se vuelve critico $O(n)$ veces.\\
+        Por lo tanto el número total de pasos es $O(nm)$.\\
+        La complejidad de hallar un camino aumentate es $O(m)$ por BFS.\\
+        Entonces la complejidad total es $O(m)*O(nm)=O(nm^{2})$.
+\end{itemize}
+
+%%%%%% 2 %%%%%%
+\begin{itemize}
+    \item [2)] \textbf{Probar que si, dados vértices $x$, $z$ y flujo $f$ definimos 
+    a la distancia entre $x$ y $z$ relativa a $f$ como la longitud del menor 
+    $f-$camino aumentante entre $x$ y $z$, si es que existe tal camino, o infinito 
+    si no existe o 0 si $x = z$, denotandola por $d_{f} (x, z)$, y definimos 
+    $d_{k}(x) = d_{f_{k}} (s, x)$, donde $f_{k}$ es el $k-$ésimo flujo en una 
+    corrida de Edmonds-Karp, entonces $d_{k}(x) \< d_{k+1}(x)$}
+    \label{dem:dist}
+\end{itemize}
+
+Vamos a demostrar que $d_{k}(x) \< d_{k+1}(x)$.
+\medskip
+
+Sea $A = \llaves{y: d_{k+1}(y) < d_{k}(y)}$. Queremos ver que $A = \emptyset$ 
+vamos a suponer que no es $\emptyset$ y llegar a un absurdo.
+\medskip
+
+Suponemos $A \neq \emptyset$, es decir, que tiene $1$ o muchos elementos, y de 
+entre todos los elementos elegimos $x \in A$ tal que:
+\begin{equation}
+    d_{k+1}(x) \< d_{k+1}(y)\,\, \forall y \in A
+    \label{EK:1}
+\end{equation}
+
+Como $x \in A$, entonces $d_{k+1}(x) < d_{k}(x) \Rightarrow d_{k+1} < \infty$, por 
+definición de $A$.
+Entonces, existe $f_{k+1}-$ca entre $s$ y $x$, tomemos uno de menor longitud, es 
+decir,
+\begin{align*}
+    \underbrace{s .... x}_{longitud = d_{k+1}(x)}\\
+\end{align*}
+
+\underline{Observación importante:} 
+$d_{k}(s) = d_{k+1}(s) = 0, s\notin A \ldots s \neq x$.
+\medskip
+
+Sea $z$ el vertice inmediatamente anterior a $x$ en ese camino $(s\ldots zx)$. 
+Como el camino es de \textbf{longitud minima}, entonces:
+\begin{equation}
+    d_{k+1}(x) = d_{k+1}(z) + 1
+    \label{EK:2}
+\end{equation}
+
+En particular, $d_{k+1}(z) < d_{k+1}(x) \Rightarrow_{Por \eqref{EK:1}} z \notin A$. 
+(tendría que ser $\leq$)
+\medskip
+
+Como $z \notin A$, entonces se da lo contrario:
+\begin{equation}
+    d_{k}(z) \< d_{k+1}(z) \Rightarrow d_{k}(z) < \infty
+    \label{EK:3}
+\end{equation}
+
+Como $d_{k+1}(z) < d_{k+1}(x) < \infty$. Por \eqref{EK:3} existe un $f_{k}-$ca 
+entre $s$ y $z$, y de ellos voy a tomar uno de longitud minima.
+\medskip
+
+Primero supongamos que $\overrightarrow{zx} \in E$. Entonces, si suponemos 
+primero que esta saturado $(f_{k}(\overrightarrow{zx}) = c(\overrightarrow{zx}))$, 
+pero $\underbrace{s\ldots z}_{f_{k+1}}x$ es un ca relativo. Entonces, 
+$f_{k+1}(\overrightarrow{zx}) < c(\overrightarrow{zx})$. Esto implica que para 
+pasar de $f_{k}$ a $f_{k+1}$ el lado se uso backward.
+\medskip
+
+Entonces, para pasar de $f_{k}$ a $f_{k+1}$ debe haber un ca de la forma 
+$s \ldots \overleftarrow{xz} \ldots t$ y como estamos usando EK este camino es de 
+longitud minima.
+\begin{equation}
+    d_{k}(z) = d_{k}(x) + 1
+    \label{EK:4}
+\end{equation}
+
+Entonces:
+\begin{align*}
+    d_{k}(x) =_{\eqref{EK:4}} d_{k}(z)-1 \< _{\eqref{EK:3}} d_{k+1}(z) -1 = (d_{k+1}(x)-1)-1 &= d_{k+1}(x) -2\\
+    &<d_{k}(x) -2\\
+    &\Rightarrow d_{k}(x) < d_{k}(x)-2 \\
+    &\Rightarrow 0 < 2 \,\,\text{Absurdo}
+\end{align*}
+
+Llegamos a un absurdo por suponer que $f_{k}(\overrightarrow{zx}) = c(\overrightarrow{zx})$. 
+Ahora veamos el otro caso, $f_{k}(\overrightarrow{zx}) < c(\overrightarrow{zx})$ 
+(no esta saturado). Pero teniamos el $f-k$ ca, $s \ldots z$ entonces existe un 
+$f_{k+1}$ ca del tipo $s\ldots \overrightarrow{zx}$ (no se si es de longitud 
+minima). Entonces:
+\begin{align*}
+    d_{k}(x) &\< d_{k}(z)+1\\
+    & \< d_{k+1}(z) +1 = d_{k+1}(x)\\
+    & < d_{k}(x) \Rightarrow 0 < 0 \,\,\text{Absurdo}
+\end{align*}
+
+Por lo tanto en cualquier caso, si $\overrightarrow{zx} \in E$, llegamos a un 
+absurdo.
+\medskip
+
+Ahora supongamos que $\overrightarrow{xz} \in E$, en este caso también llegamos 
+a un absurdo dependiendo si $f_{k}(\overrightarrow{xz}) = 0$ o no.
+\medskip
+
+Entonces, si $f_{k}(\overrightarrow{xz}) = 0$ como $\underbrace{s\ldots z}_{f_{k}}x$ es ca. 
+Entonces, $zx$ es backward, $s\ldots \overleftarrow{zx}$, entonces 
+$f_{k+1}(\overrightarrow{xz}) > 0$. Para pasar de $f_{k}$ a $f_{k+1}$ usamos un ca, 
+$s\ldots \overrightarrow{xz} \ldots t\Rightarrow_{EK} d_{k}(z) = d_{k}(x)+1$ 
+y es un absurdo como antes. 
+\medskip
+
+Por otro lado, si $f_{k}(\overrightarrow{xz}) > 0$ entonces 
+tenemos que $\underbrace{s\ldots \overleftarrow{zx}}_{f_{k+1}}$ es un ca, por lo 
+que $d_{k}(x)\< d_{k}(z)+1$ y llegamos a un absurdo otra vez.
+\medskip
+
+Entonces hemos llegado a un absurdo en todos los casos, por lo tanto, $A = \emptyset$ 
+y $d_{n} < d_{n+1}$ (las distancias no disminuyen).
+
+%%%%%% 3 %%%%%%
+\begin{itemize}
+    \item [3)] \textbf{Cual es la complejidad del algoritmo de Dinic? Probarla en ambas 
+    versiones: Dinitz original y Dinic-Even. (no hace falta probar que la distancia 
+    en networks auxiliares sucesivos aumenta)}
+    \label{dem:Dinic}
+\end{itemize}
+
+\begin{corolario} La complejidad de cualquier algoritmo que use NA, es 
+    $$\underbrace{O(n)}_{\text{Num de NA}}\parent{\underbrace{O(m)}_{\text{Contruir NA con BFS}} + \,\text{Complejidad de hallar un FB}}$$
+    \label{cor:NA}
+\end{corolario}
+
+Por el corolario anterior, basta ver que la complejidad de hallar un 
+\textbf{flujo bloqueante} es $O(nm)$.
+\medskip
+
+En la versión original, cada camino entre $s$ y $t$ se encuentra usando DFS, 
+pero el NA tiene la propiedad extra que se garantiza que toda búsqueda DFS nunca 
+va a tener que hacer backtranking, pues cada vértice con lado entrante tiene lado 
+saliente. Pero esta propiedad tiene el costo de tener que mantenerla entre 
+camino y camino, revisando el NA. A esta operación se la llama \textbf{podar}.
+\medskip
+
+Primero veamos la complejidad de encontrar todos los caminos. La construcción de 
+cada camino es $O(r)$ donde $r$ es el número de niveles. Como $r<n$ podemos decir 
+que esta parte es $O(n)$, luego de cada camino se borran del NA los lados 
+saturados, pero esto es simplemente recorrer una vez más el camino, así que 
+es $O(n)$
+\medskip
+
+Cada camino satura al menos un lado, y luego borramos ese lado (del NA), por lo 
+tanto hay a lo sumo $O(\# \,\text{lados del NA}) = O(m)$ caminos.
+\medskip
+
+Por lo tanto la complejidad de hallar todos los caminios es $O(n)O(m) = O(nm)$, 
+pero falta la complejidad de todos los "Podar", pero cómo funciona podar?
+\medskip
+
+Se recorre en los niveles desde $t$ a $s$ mirando cada vertice y sino tiene lados 
+lo borramos a él y a todos los lados que llegaban a él.
+\medskip
+
+Podar tiene dos partes:
+\begin{itemize}
+    \item [1.] Revisa los vertices.
+    \item [2.] Si es necesario borrar los lados.
+\end{itemize}
+
+En $1)$ es para cada vertice, entonces es $O(1)$ y como hay $n$ vertices, el costo 
+total de un podar es $O(n)$. Cuántos podar hay? Hay uno por camino y había $O(m)$ 
+caminos, por lo tanto hay $O(m)$ podar y la complejidad de revisar los vertices 
+es $O(n)$, por lo tanto esta parte también es $O(nm)$.
+\medskip
+
+Por otra parte en $2)$ no queremos la complejidad de un podar sino la de todos 
+(la de un podar puede ser muy grande y va reduciendo a medida que se borran lados).
+Como la segunda parte cada vez que se llama borra al menos un lado, la suma total 
+sobre todos los podar es $O(m)$.
+
+$$\text{Complejidad Total} = O(nm) + O(nm) + O(m) = O(nm) \square$$
+
+\underline{Dinitz-Even (Versión Occidental):} La diferencia de la versión 
+de Even es que el NA no esta depurado y por lo tanto un DFS puede demorar mas de 
+$O(n)$, pero va depurando a medida que se corre DFS, borrando los lados por los 
+cuales tenemos que retroceder.
+\newpage
+\begin{algorithm}
+    \caption{Calculo del flujo bloqueante del NA}
+    \begin{algorithmic}[1]
+        % ENTRADA / SALIDA
+        % \Require{$\Gamma^{+}(x)$, NA} 
+        % \Ensure{flujo bloquenate, $g$}
+        \State g=0
+        \State flag=1
+        \While {flag}
+            \State $k = s$ (pivote)
+            \State Inicializar el camino $p$ en $s$
+            \While {$x \neq t$ and flag}
+                \If {$\Gamma^{+}(x) \neq \emptyset$} AVANZAR$(x,p,g,NA)$
+                \ElsIf {$x \neq s$} RETROCEDER$(x,p,g,NA)$
+                \Else flag=0
+                \EndIf
+                \If {x == t} INCREMENTAR(g)
+                \EndIf
+            \EndWhile
+        \EndWhile
+        \State{\Return $g$}
+    \end{algorithmic}
+\end{algorithm}
+% \begin{algorithm}
+%     \caption{AVANZAR}
+%     \begin{algorithmic}[1]
+%         % ENTRADA / SALIDA
+%         \Require{$x, p, g, NA$}
+%         \State tomar $y \in \Gamma^{+}(x)$
+%         \State agregar $y$ al camino $p$
+%         \State $x = y$
+%     \end{algorithmic}
+% \end{algorithm}
+% \begin{algorithm}
+%     \caption{RETROCEDER}
+%     \begin{algorithmic}[1]
+%         % ENTRADA / SALIDA
+%         \Require{$x, p, g, NA$} 
+%         \State tomar $y =$ vertice anterior a $x$ en el camino
+%         \State borrar el lado $\overrightarrow{yx}$ del NA
+%         \State borrar $x$ del camino
+%         \State $x = y$ 
+%     \end{algorithmic}
+% \end{algorithm}
+% \begin{algorithm}
+%     \caption{INCREMENTAR}
+%     \begin{algorithmic}[1]
+%         % ENTRADA / SALIDA
+%         \Require{$G$} 
+%         \State recorrer el camino $p$ para calcular $\epsilon$
+%         \State aumentar $g$ en $\epsilon$ a lo largo de $p$
+%         \State borrar lados saturados
+%     \end{algorithmic}
+% \end{algorithm}
+
+Una vez que se tiene creado el camino para aumentar el flujo, el INCREMENTAR es 
+$O(n)$ pues la longitud del camino es a la sumo $n$, e INCREMENTAR aumenta el 
+flujo a lo largo de ese camino y borra todos los lados saturados. Además la 
+complejidad de AVANZAR es $O(1)$ ya que consiste en buscar el primer vértice 
+en la lista de $\Gamma^{+}(x)$, agregar un lado al camino y cambiar $x$. 
+Por último, RETROCEDER también es $O(1)$ pues simplemente borramos un lado y 
+cambiamos quien es $x$.
+
+\begin{teorema} Complejidad de Dinitz-Even es $O(n^{2}m)$
+\end{teorema}
+
+\underline{Prueba}
+\medskip
+
+Como antes basta ver que la complejidad del \textbf{flujo bloqueante} es $O(nm)$. 
+Una corrida es una "palabra" que se obtiene con DFS de la forma:
+$$IA\ldots AAAIAARARR \ldots AA \ldots IA\ldots$$ 
+donde:
+\begin{itemize}
+    \item $A \to AVANZAR \Rightarrow O(1)$
+    \item $R \to RETROCEDER \Rightarrow O(1)$
+    \item $I \to INCREMENTAR \Rightarrow O(r) = O(n)$
+\end{itemize}
+
+Calcular la complejidad de la palabla? Analizo un solo DFS hasta que no pueda 
+AVANZAR, es decir, una subpalabra.
+\medskip
+
+$A \ldots AX$ con $X=I$ ó $X=R$, entonces la complejidad de cada palabra? Como 
+hay $r$ niveles y cada $A$ incrementa el nivel del pivote, hay a lo sumo 
+$r$ $A's$ seguidas, entonces:
+$$\text{Complejidad}(A \ldots AX) = O(r) + complejidad(X)$$
+
+$X$ puede ser $I$ o $R$, entonces si es $I$ es $O(r)$ y si es $R$ es $O(1)$. 
+Entonces $$\text{Complejidad}(A \ldots AX)= \left\{ \begin{array}{lcc}
+    O(r) + O(1) & \to & X=R \\
+    \\O(r) + O(r)& \to & X=I\\
+    \end{array}
+    \right.$$
+
+Entonces $=O(r) \Rightarrow O(n)$.
+\medskip
+
+Cuantas palabras hay? Si $X=R$, $R$ borra un lado y si $X=I$, $I$ borra al menos 
+un lado. Entonces, cada $A \ldots Ax$ borra al menos un lado por lo que hay a los 
+sumo $O(m)$ palabras ($\#$ lados del NA).
+\medskip
+
+Entonces son $O(m)$ palabras con complejidad $O(n)$ cada una, entonces $O(nm)$ 
+total.$\square$
+
+%%%%%% 4 %%%%%%
+\begin{itemize}
+    \item [4)] \textbf{Cual es la complejidad del algoritmo de Wave? Probarla. 
+    (no hace falta probar que la distancia en networks auxiliares sucesivos 
+    aumenta).}
+    \label{dem:Wave}
+\end{itemize}
+
+La complejidad del algoritmo de Wave es $O(n^{3})$, pero como trabaja con NA's 
+por el corolario \ref{cor:NA} basta ver que la complejidad de hallar un
+\textbf{flujo bloqueante} es $O(n^{2})$.
+\medskip
+
+Para poder encontrar un flujo bloqueante, se hace una serie de ciclos de olas 
+hacia adelante y olas hacia atrás. En cada ola hacia adelante hacemos una serie 
+de forwardbalance (fwb) y en cada ola hacia atrás hacemos una serie de
+backwardbalance (bwb). En cada ola hacia adelante (salvo en la última) al menos 
+un vertice se bloquea, si los fwb no bloquean ningún vertice entonces todos 
+quedan balanceados y es la última ola.
+\medskip
+
+Como los vertices nunca se desbloquean, hay a lo sumo $O(n)$ olas. Entonces tenemos 
+que analizar dos casos, los fwb y los bwb y ver su complejidad. 
+\medskip
+
+En cada \textbf{fwb} vamos saturando lados salvo quizas uno. Entonces dividamos la 
+complejidada en dos:
+\begin{itemize}
+    \item [1.] $S=$ complejidad total de los fwb saturado.
+    \item [2.] $P=$ complejidad de fwb parcial.
+\end{itemize}
+
+$P$ es facil, en cada fwb solo se ejecuta una vez, entonces es $O(1)$ pero se 
+puede realizar $n-2$ veces en una ola, entonces:
+\begin{align*}
+    P &= \#\,\text{total de fwb}\\
+    &= \#\,\text{de fwb en una ola} * \,\text{olas}\\
+    &= O(n) * O(n)\\
+\end{align*}
+
+En cuanto a $S$, cada vez que se ejecuta uno de esta parte, se borra un vecino de 
+$\Gamma^{+}(x)$. Por lo tanto, será a lo sumo $O(d(x))$ en cada $x$, entonces:
+$$s = \sum_{x} O(d(x)) = O(m)$$.
+\medskip
+
+Con \textbf{bwb} también lo dividimos en casos que vaciamos un lado $V$ y 
+los que parcialmente vaciamos $Q$. El analisis de $Q$ es igual que el de $P$, es 
+$O(1)$ en el bwb, por lo tanto
+\begin{align*}
+    Q &= \#\,\text{total de bwb(x)}\\
+    &= \#\,\text{de bwx(x) en una ola} * \,\text{olas}\\
+    &= O(n) * O(n)\\
+\end{align*}
+
+Y con respecto a $V$, cada vez que lo hacemos en un $bwb(x)$ borramos un 
+vertice de $M(x)$ (vecinos hacia atrás). Por lo que esta acotado por:
+$$O(\#\,\text{número de elementos máximos de $M(x)$}) = O(d(x)) = O(m)$$
+Un detalle importante es que $\Gamma^{+}(x)$ es fijo y le voy sacando elementos y 
+$M(x)$ al inicio es vacio, pero le voy agregando vertices.
+\medskip
+
+Supongamos que $\overrightarrow{yx}$ se vacía, entonces $y$ se borra de $M(x)$,
+pero más adelante podría ser que lo vuelva a poner en $M(x)$. Pero 
+$\overrightarrow{yx}$ solo se puede vaciar si $x$ está bloqueado, pues de otra 
+forma no pudiera devolverle flujo a $y$. Pero si $x$ esta bloqueado el 
+vértice $y$ nunca más puede mandarle flujo. Entonces, si $\overrightarrow{yx}$ 
+nunca más puede recibir flujo, menos aún va a poder volver a vaciarse. Entonces 
+una vez que removó a $y$ no lo voy a poder agregar nuevamente a $M(x)$.
+\medskip
+
+Entonces, la complejidad final:
+$$\text{Complejidad} = P + V + S + Q = O(n^{2}) + O(m) + O(n^{2}) + O(m) = O(n^{2}) \square$$
+
+%%%%%% 5 %%%%%%
+\begin{itemize}
+    \item [5)] \textbf{Probar que la distancia en networks auxiliares sucesivos aumenta.}
+    \label{dem:dist2}
+\end{itemize}
+
+\begin{teorema} (Dinitz) La cantidad de NA usados es $O(n)$
+\end{teorema}
+\underline{Prueba:}
+\medskip
+
+Sea NA un network auxiliar y NA' el siguiente network auxiliar. Sean $d_{i}(x) = d_{f}(s,x)$ 
+las distancias de FF usadas para construir NA y $d'$ para NA'. Vamos a demostrar 
+que $d(t) < d'(t)$.
+\medskip
+
+Sabemos por EK que $d \< d'$, acá queremos ver solo el $<$. Entonces, si 
+$d'(t) = \infty$, ya está.
+\medskip
+
+Suponiendo, $d'(t) < \infty$, entonces existe al menos un camino aumentante (ca), 
+entre $s$ y $t$ en el network original, por lo tanto existe un camino dirigido de 
+$s$ a $t$ en NA'.
+\medskip
+
+Sea $s=x_{0},x_{1},\ldots,x_{n}=t$ un caminio dirigido entre $s$ y $t$ en NA', 
+como NA' es un network por niveles, entonces $d(x_{i}) = i, i=0,\ldots,r$, pues 
+mando flujo, ese camino no pude estar en NA, porque para pasar de NA a NA' se 
+bloquean todos lo caminos de NA por lo tanto si ese camino estuviera en NA se 
+hubiera bloqueado y no estaría en NA'. Sino es camino en NA entonces puede suceder:
+\begin{itemize}
+    \item [a)] Falta un vertice 
+    \item [b)] Falta un lado
+\end{itemize}
+
+Veamos el a) entonces si falta un vertice, tomamos un $x$ cualquiera por 
+lo que $x_{i} \notin NA \Rightarrow d(t) \< d(x_{i})$.
+\medskip
+
+Pero por EK, sabemos que $d \< d'$:
+\begin{align*}
+    d(t) \< d(x_{i}) \<_{EK} d'(x_{i}) &= i\\
+    &<_{x\neq t} r = d'(t)\\
+    &\Rightarrow d(t) < d'(t)
+\end{align*}
+
+Si falta al menos un lado (parte b) tengo dos posibles casos. Sea $i$ el primer 
+indice tal que $\overrightarrow{x_{i}x_{i+1}} \notin NA$, con esto me aseguro 
+que todos los anteriores esten.
+\begin{itemize}
+    \item [Caso 1.] $d(x_{i+1}) < i+1 \Rightarrow d(x_{i+1}) < d'(x_{i+1})$
+        Entonces hacemos algo similar al caso a). pero con $x_{i+1}$.
+        \begin{align*}
+            d(t) &= d(x_{i+1}) + b(x_{i+1})\\
+            &\< d(x_{i+1}) + b'(x_{i+1})\\
+            &< i + 1 + b'(x_{i+1})\\
+            &\text{por hip}\\
+            &=d'(x_{i+1}) + b'(x_{i+1})\\
+            &=d'(t) \Rightarrow d(t) < d'(t)\\
+        \end{align*}
+    \item [Caso 2.] 
+        $d(x_{i+1}) \nless i+1$.
+        Pero $d(x_{i+1}) \< i+1$, entonces $d(x_{i+1}) = i+1$. Como $i$ es el 
+        primer indice con $\overrightarrow{x_{i}x_{i+1}} \notin NA$, entonces 
+        $\overrightarrow{x_{j}x_{j+1}} \in NA\, \forall j<i$, como NA es por 
+        niveles nos dice que la porción $x_{0}x_{1}\ldots x_{j}$ esta en NA.
+        $\Rightarrow d(x_{j}) = j, \forall j<i$. Es decir, que vale 
+        $\forall j \< i+1$.
+        \medskip
+
+        En particular $d(x_{i}) = i, d(x_{i+1}) = i+1$. Entonces, $x_{i}$ esta 
+        en el nivel $i$ y $x_{i+1}$ en el nivel $i+1$. Entonces, 
+        $\overrightarrow{x_{i+1}x_{i}} \notin NA$ por lo que vimos antes
+        (los niveles no son legales).
+        \medskip
+
+        Como sabemos que $\overrightarrow{x_{i+1}x_{i}} \notin NA$ entonces 
+        tenemos que no está ninguno de los dos, es decir, que 
+        $\overrightarrow{x_{i}x_{i+1}} \notin NA$ y 
+        $\overrightarrow{x_{i+1}x_{i}} \notin NA$.
+        \medskip
+
+        Pero $x_{i}$ pertenece al nivel $i$ y $x_{i+1}$ al nivel $i+1$, entonces
+        $\overrightarrow{x_{i}x_{i+1}}$ podría estar, pero no puede mandar ni 
+        devolver flujo. Como no está, caso fordward saturado o caso backward
+        vacio. Pero $\overrightarrow{x_{i}x_{i+1}} \in NA'$, entonces se 
+        tiene que haber des-saturado o llenado un poco según el caso al ir de 
+        NA a NA'.
+        \medskip
+
+        Pero entonces, para pasar de NA a NA', tengo que haber usado el lado al 
+        revés, pero no lo puedo haber usado porque $x_{i}x_{i+1}$ no existe.
+\end{itemize}
+$\square$
+
+%%%%%% 6 %%%%%%
+\begin{itemize}
+    \item [6)] \textbf{Probar que el valor de todo flujo es menor o igual que la 
+    capacidad de todo corte y que si f es un flujo, entonces las siguientes 
+    afirmaciones son equivalentes:
+    \begin{itemize}
+        \item [i)] $f$ es maximal
+        \item [ii)] Existe un corte $S$ tal que $v(f) = cap(S)$ (y en este caso, 
+        $S$ es minimal)
+        \item [iii)] No existen $f-$caminos aumentantes. (puede usar sin necesidad 
+            de probarlo que si $f$ es ﬂujo y $S$ es corte entonces 
+            $v(f) = f(S,\overline{S})-f(\overline{S},S)$)
+    \end{itemize}}
+    \label{dem:valor}
+\end{itemize}
+
+\underline{Prueba} $3) \Rightarrow 2) \Rightarrow 1) \Rightarrow 3)$.
+\medskip
+
+$2) \Rightarrow 1)$ (si existe un corte $S$ tal que $v(f) = cap(S)$ 
+entonces $f$ es maximal)
+\medskip
+
+Dados $S$ corte, $f$ y $g$ dos flujos, entonces sabemos que el valor de todo 
+flujo es menor o igual a la capacidad de todo corte. Entonces $v(g) \< cap(S)$.
+\medskip
+
+Por hipotesis tenesmos que $v(f) = cap(S)$ entonces $v(g) \< cap(S) = v(f)$, 
+por lo que $v(g) \< v(f)$ entonces $f$ es maximal. Además, si $T$ es un corte, 
+$cap(T) \> v(f) = cap(S)$, entonces $S$ es minimal.
+
+$1) \Rightarrow 3)$ (si $f$ es maximal entonces no existen $f-$caminos aumentantes)
+\medskip
+
+$\lnot\, 3) \Rightarrow \lnot\, 1)$ (contrareciproca)
+\medskip
+
+Entonces, existe un $f-$camino aumentante entre $s$ y $t$, entonces usando ese 
+camino aumentante podemos construir un nuevo flujo con valor $f^{*}$ tal que 
+$v(f^{*}) = v(f) + \epsilon$ esto implica que $f$ no es maximal, debido a que
+$v(f^{*}) > v(f)$.
+\medskip
+
+$3) \Rightarrow 2)$, la idea es $\nexists \Rightarrow \exists$ (parte dificil)
+\medskip
+
+Definamos:
+$$S = \llaves{s} \cup \llaves{x: \exists \, \text{un $f$ ca entre $s$ y $x$}}$$
+
+Como $f$ es flujo y $S$ es corte, entonces:
+$$v(f) = f(S,\overline{S}) - f(\overline{S},S)$$
+
+Entonces, veamos primero
+$$f(S,\overline{S}) = \sum_{x\in S, y\in \overline{S}, xy \in E} f(\overrightarrow{xy})$$
+
+Y tomemos un par $(x,y)$ cualquiera con $x\in S, y \notin S, xy \in E$, entonces 
+existe un $f-$camino aumentante entre $s\ldots x$ y como $y \notin S$ no existe 
+$f-$ca entre $s\ldots y$.
+\medskip
+
+Supongamos que $f(\overrightarrow{xy}) < c(\overrightarrow{xy})$, no se satura, 
+entonces el lado $\overrightarrow{xy}$ puede usarse en algún ca. Como $s\ldots x$ 
+es $f-$ca, entonces $s\ldots xy$ es $f-$ca, entonces $y \in S$, lo que es un absurdo.
+\medskip
+
+$f(\overrightarrow{xy}) \nless c(\overrightarrow{xy}) \Rightarrow f(\overrightarrow{xy}) = c(\overrightarrow{xy})$ 
+esto vale $\forall x\in S, y\notin S, \overrightarrow{xy}\in E$. Por lo tanto:
+$$f(S,\overline{S}) = \sum_{x\in S, y\notin S, xy \in E} f(\overrightarrow{xy}) = \sum_{x\in S, y\notin S}c(\overrightarrow{xy}) = c(S,\overline{S}) = cap(\overline{S})$$
+
+Por otro lado, si es un lado backward:
+$$f(\overline{S},S) = \sum_{x\notin S, y\in S, xy \in E} f(\overrightarrow{xy})$$
+
+tomemos un par $(x,y)$ cualquiera con $\overrightarrow{xy} \in E, x\notin S, y\in S$, 
+entonces $\exists f-$ca, $s\ldots y$
+\medskip
+
+Supongamos que $f(\overrightarrow{xy}) > 0$, entonces podemos devolver flujo por 
+$\overrightarrow{xy}$ por lo que:
+$$\underbrace{s\ldots y}_{ca}\overleftarrow{x}$$ 
+
+también es ca, entonces $x\in S$ lo que es un absurdo, entonces $f(\overrightarrow{xy}) = 0, \forall x\notin S, y\in S, \overrightarrow{xy}\in E$
+\medskip
+
+Entonces:
+$$f(\overline{S},S) = \sum_{x\notin S, y\in S, xy\in E} f(\overrightarrow{xy}) = 0$$
+
+Por lo tanto:
+$$v(f) = f(S,\overline{S}) - f(\overline{S},S) = cap(S) - 0 = cap(S)$$
+$$\square$$
+
+%%%%%% 7 %%%%%%
+\begin{itemize}
+    \item [7)] \textbf{Probar que $2-$COLOR es polinomial.}
+    \label{dem:2color}
+\end{itemize}
+
+% \textbf{Problema:} "k-color": Dado $G$ es $\chi(G) \< k$? $1-$color es trivial 
+% (no es polinomial). $2-$color es polinoimal (hay algún algoritmo que corre en tiempo 
+% polinomial en un rango de la entrada). Idea (la demostración por ahora no) Basta 
+% correrlo para grafos conexos. Tomamos un $x\in V$, corremos BFD empezando en $x$. Si:
+% \begin{align*}
+%     N(z) &=\, \text{nivel $z$ en el arbol BFS}\\
+%          &=\, \text{distancia entre $z$ y $x$ en el arbol BFS}\\
+%          &=\, \text{distancia entre $z$ y $x$ en $G$}
+% \end{align*}
+% Sea: 
+% \begin{align*}
+%     C(z) &= (N(z)\, mod\, 2)\\
+%     &IF(\text{$C$ es propio, return si, es $2-$colorable})\\
+%     &ELSE(\text{return no es $2-$colorable})
+% \end{align*}
+
+% El algoritmo es polinomial porque BFS es $O(m)$ y chequear que es propio es $O(m)$,
+% lo que hay que probar es si es correcto. Entonces supongamos que la respuesta es 
+% "no es $2-$colorable". 
+
+% $$\Rightarrow \exists v,z : c(v) = c(z) \wedge vz \in E$$
+
+% Entonces $d(x,v) = d(x,z)\,\,mod\,\, 2$
+% \medskip
+
+% tomamos un camino entre $x$ y $v$ en BFS y un camino entre $x$ y $z$ en BFS y sea 
+% $w$ el único vertice en común (como lo muestra la siguiente figura).
+
+% \begin{figure}[H]
+%     \centering
+%     \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+%     \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%     %uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+%     \centering
+%     %Curve Lines [id:da9660361289294499] 
+%     \draw    (185,174) .. controls (254,182) and (276,96) .. (315,54) ;
+%     %Curve Lines [id:da45622019482482745] 
+%     \draw    (285,98) .. controls (325,68) and (330,217) .. (370,187) ;
+%     % Text Node
+%     \draw (312,31.8) node [anchor=north west][inner sep=0.75pt]    {$x$};
+%     % Text Node
+%     \draw (380,180.8) node [anchor=north west][inner sep=0.75pt]    {$z$};
+%     % Text Node
+%     \draw (172,170.8) node [anchor=north west][inner sep=0.75pt]    {$v$};
+%     % Text Node
+%     \draw (270,86.8) node [anchor=north west][inner sep=0.75pt]    {$w$};
+%     \end{tikzpicture}
+% \end{figure}
+
+% Miramos el ciclo en $G$: $w \ldots \underbrace{vz}_{\text{cruzo a $z$}} \ldots \underbrace{w}_{\text{vuelvo a $x$}}$ 
+% (como lo muestra la siguiente imagen).
+% \begin{figure}[H]
+%     \centering
+%     \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+%     \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+%     %uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+%     %Curve Lines [id:da9660361289294499] 
+%     \draw    (185,174) .. controls (254,182) and (276,96) .. (315,54) ;
+%     %Curve Lines [id:da45622019482482745] 
+%     \draw    (285,98) .. controls (325,68) and (330,217) .. (370,187) ;
+%     %Shape: Ellipse [id:dp8919263115782621] 
+%     \draw   (164.05,194.88) .. controls (150.21,178.93) and (170.82,138.4) .. (210.07,104.35) .. controls (249.32,70.3) and (292.36,55.63) .. (306.19,71.58) .. controls (320.02,87.52) and (299.42,128.05) .. (260.17,162.1) .. controls (220.92,196.15) and (177.88,210.83) .. (164.05,194.88) -- cycle ;
+%     %Shape: Ellipse [id:dp6731791355972647] 
+%     \draw   (166.62,169.16) .. controls (168.21,153.5) and (224.06,146.33) .. (291.37,153.14) .. controls (358.68,159.96) and (411.96,178.18) .. (410.38,193.84) .. controls (408.79,209.5) and (352.94,216.67) .. (285.63,209.86) .. controls (218.32,203.04) and (165.04,184.82) .. (166.62,169.16) -- cycle ;
+%     %Shape: Ellipse [id:dp4061401367808297] 
+%     \draw   (265.02,75.48) .. controls (279.1,59.75) and (321.9,75.09) .. (360.61,109.74) .. controls (399.33,144.4) and (419.3,185.24) .. (405.22,200.97) .. controls (391.14,216.7) and (348.34,201.36) .. (309.63,166.71) .. controls (270.91,132.06) and (250.94,91.21) .. (265.02,75.48) -- cycle ;
+%     % Text Node
+%     \draw (312,31.8) node [anchor=north west][inner sep=0.75pt]    {$x$};
+%     % Text Node
+%     \draw (380,180.8) node [anchor=north west][inner sep=0.75pt]    {$z$};
+%     % Text Node
+%     \draw (175,164.8) node [anchor=north west][inner sep=0.75pt]    {$v$};
+%     % Text Node
+%     \draw (270,86.8) node [anchor=north west][inner sep=0.75pt]    {$w$};
+%     \end{tikzpicture}
+% \end{figure}
+
+% Calculamos la longitud de este ciclo:
+% \begin{align*}
+%     longitud &= 1 + d(v,w) + d(z,w) \\
+%     longitud\, mod\, 2 &= (1 + d(v,w) + \ldots + d(z,w)) \, mod\, 2\\
+%     &= (1 + d(v,w) + d(z,w) + 2d(x,w))\, mod\, 2\\
+%     &= (1 + d(x,v) + d(x,z))\, mod\, 2 = (1 + \overbrace{c(x) + c(z)}^{=0})\, mod\, 2\\
+%     &= 1
+% \end{align*}
+% Es un ciclo impar, entonces no se puede colorear con 2 colores $\Rightarrow$ $\chi_(G) \> 3$.
+% $\square$
+
+Asumimos $G$ un grafo conexo. Sea $x \in V$ corramos $BFS(x)$, si al correr 
+$BFS(x)$, cuando un vertice $z$ agrega a un $w$ agregrando al lado $zw$, tenemos 
+un arbol. 
+\medskip
+
+Sea $N(z) = \text{Longitud del único camino entre $x$ y $z$ en el arbol BFS}$.
+\medskip
+
+Definimos:
+$$C(z)=  N(z) \mod 2 =\left\{ \begin{array}{lcc}
+    0   & \to & N(z)\,\, par \\
+    \\1 & \to & N(z)\,\, impar\\
+    \end{array}
+    \right.$$
+
+Si es propio $\Rightarrow \text{\textbf{return}}\,\, \chi(G) \< 2$.
+\medskip
+
+Si no propio $\Rightarrow \text{\textbf{return}}\,\, \chi(G) > 2$.
+\medskip
+
+\textbf{Fin del algoritmo.}
+\medskip
+
+Entonces, hay que demostrar $1)$ el algoritmo es polinomial, $2)$ el algoritmo
+es correcto.
+\medskip
+
+Veamos $1)$ sabemos que $BFS(x)$ es $O(m)$ y chequear que el coloreo es propio 
+es $O(m)$ entonces $O(m) + O(m) = O(m)$.
+\medskip
+
+$2)$ Supongamos que la respuesta es "no es $2-$colorable", es decir, que ningún 
+otro coloreo con $2$ colores es propio lo que veremos es que $G$ tiene un ciclo 
+impar.
+\medskip
+
+Entonces con $C$ no propio. $\exists z,w : C(z) = C(w) \wedge zw \in E$.
+\medskip
+
+Sea $x = z_{0}, z_{1}, \ldots , z_{r} = z$ un camino de $x$ a $z$ en el arbol BFS
+y $x = w_{0}, w_{1}, \ldots , w_{t} = w$ otro camino de $x$ a $w$ en el arbol BFS.
+\medskip
+
+Además $\exists i : w_{i} = z_{i} \wedge w_{i+1} \neq z_{i+1}$
+\medskip
+
+Consideremos $w_{i}w_{i+1}, \ldots\, wz\, z_{r-1} \ldots z_{i}$, como se 
+muestra en la siguiente figura.
+
+\begin{figure}[H]
+    \centering
+        \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+        \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+        %uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+        %Curve Lines [id:da9660361289294499] 
+        \draw    (185,174) .. controls (254,182) and (276,96) .. (315,54) ;
+        %Curve Lines [id:da45622019482482745] 
+        \draw    (285,98) .. controls (325,68) and (330,217) .. (370,187) ;
+        %Shape: Ellipse [id:dp6731791355972647] 
+        \draw   (169.98,154.25) .. controls (174.41,110.48) and (228.66,80.13) .. (291.15,86.45) .. controls (353.65,92.78) and (400.72,133.39) .. (396.29,177.16) .. controls (391.86,220.93) and (337.6,251.28) .. (275.11,244.96) .. controls (212.62,238.63) and (165.55,198.02) .. (169.98,154.25) -- cycle ;
+        %Shape: Brace [id:dp29047934988211077] 
+        \draw   (405,191) .. controls (409.33,189.25) and (410.61,186.21) .. (408.86,181.88) -- (386.24,126.14) .. controls (383.73,119.96) and (384.64,115.99) .. (388.97,114.24) .. controls (384.64,115.99) and (381.23,113.78) .. (378.72,107.6)(379.85,110.38) -- (356.11,51.86) .. controls (354.36,47.53) and (351.32,46.25) .. (346.99,48) ;
+        %Shape: Brace [id:dp17333224647215562] 
+        \draw   (254,36) .. controls (250.23,33.25) and (246.97,33.75) .. (244.22,37.52) -- (208.24,86.79) .. controls (204.31,92.18) and (200.46,93.49) .. (196.69,90.74) .. controls (200.46,93.49) and (200.37,97.56) .. (196.44,102.94)(198.21,100.52) -- (160.47,152.21) .. controls (157.72,155.98) and (158.22,159.24) .. (161.99,161.99) ;
+
+        % Text Node
+        \draw (312,31.8) node [anchor=north west][inner sep=0.75pt]    {$x$};
+        % Text Node
+        \draw (380,180.8) node [anchor=north west][inner sep=0.75pt]    {$z$};
+        % Text Node
+        \draw (175,164.8) node [anchor=north west][inner sep=0.75pt]    {$w$};
+        % Text Node
+        \draw (233,90.8) node [anchor=north west][inner sep=0.75pt]    {$w_{i} =z_{i}$};
+        % Text Node
+        \draw (174,78.8) node [anchor=north west][inner sep=0.75pt]    {$t$};
+        % Text Node
+        \draw (401,103.8) node [anchor=north west][inner sep=0.75pt]    {$r$};
+        % Text Node
+        \draw (214,136.8) node [anchor=north west][inner sep=0.75pt]    {$t-i$};
+        % Text Node
+        \draw (334,142.8) node [anchor=north west][inner sep=0.75pt]    {$r-i$};
+    \end{tikzpicture}
+\end{figure}
+
+Como $w_{i} = z_{i}$ es un ciclo con
+
+$$t - i + r - i + \underbrace{1}_{zx} = t + r - 2i + 1 \,\, \text{lados}$$
+
+Pero $2i$ es par y $t+r$ también es par pues $C(z) = r \mod 2$ y $C(w) = t \mod 2$ 
+y como $C(z) = C(w)$ entonces $r \mod 2 = t \mod 2$. Entonces la suma de los 
+lados es impar. $\square$
+
+%%%%%% 8 %%%%%%
+\begin{itemize}
+    \item [8)] \textbf{Enunciar y probar el Teorema de Hall.}
+    \label{dem:hall}
+\end{itemize}
+
+\begin{teorema} (Hall) Si $G = (\bar{X} \cup \bar{Y}, E)$ es bipartito con partes 
+    $\bar{X}$ e $\bar{Y}$, entonces existe matching completo de $\bar{X}$ en $\bar{Y}$
+    si y solo si $|S| \< |\Gamma(S)| \,\, \forall S \subseteq \bar{X}$.
+\end{teorema}
+
+\underline{Prueba:}
+\medskip
+
+$(\Rightarrow)$ Si existe un matching completo de $\bar{X}$ en $\bar{Y}$, el matching 
+induce una función inyectiva de $\bar{X} \cap \bar{Y}$ tal que $\psi(x) \in E$, 
+por lo tanto:
+$$\psi(S) \subseteq \Gamma(S)$$
+
+por lo tanto, $|\Gamma(S)| \> |\psi(S)| = |S|$
+\medskip
+
+$(\Leftarrow)$ Queremos ver que si $\underbrace{|S| \< |\Gamma(S)|}_{P} \Rightarrow \underbrace{\exists\,\, \text{un matching completo de $\bar{X} \cap \bar{Y}$}}_{Q}$.
+\medskip
+
+Lo veremos de la siguiente forma $[P \Rightarrow Q] = [\neg Q \Rightarrow \neg P]$ 
+por contrareciproca.
+\medskip
+
+\textbf{Si $\nexists$ matching completo de $\bar{X}$ en $\bar{Y}$, entonces al 
+correr el algoritmo llegamos a un matching maximal que no cubre a $\bar{X}$}. Que 
+es equivalente a hallar un flujo maximal entero $f$ cuyo valor no es $|\bar{X}|$.
+\medskip
+
+Al hallar $f$, también hallamos un corte minimal que vamos a denotar por $c$ (seria 
+la última cola, al correr E-K).
+\medskip
+
+Sea $S = c \cap \bar{X}$, $T = c \cap \bar{Y}$, como en la siguiente imagen $(
+T \neq t)$.
+\begin{figure}[H]
+    \centering
+    \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+    \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+    %uncomment if require: \path (0,345); %set diagram left start at 0, and has height of 345
+    
+    %Shape: Circle [id:dp14718267969579513] 
+    \draw   (118,156) .. controls (118,121.21) and (146.21,93) .. (181,93) .. controls (215.79,93) and (244,121.21) .. (244,156) .. controls (244,190.79) and (215.79,219) .. (181,219) .. controls (146.21,219) and (118,190.79) .. (118,156) -- cycle ;
+    %Shape: Circle [id:dp9130235045197983] 
+    \draw   (133,164.5) .. controls (133,142.68) and (150.68,125) .. (172.5,125) .. controls (194.32,125) and (212,142.68) .. (212,164.5) .. controls (212,186.32) and (194.32,204) .. (172.5,204) .. controls (150.68,204) and (133,186.32) .. (133,164.5) -- cycle ;
+    %Shape: Circle [id:dp5449515002070981] 
+    \draw   (272,159) .. controls (272,124.21) and (300.21,96) .. (335,96) .. controls (369.79,96) and (398,124.21) .. (398,159) .. controls (398,193.79) and (369.79,222) .. (335,222) .. controls (300.21,222) and (272,193.79) .. (272,159) -- cycle ;
+    %Shape: Circle [id:dp4453429157761797] 
+    \draw   (287,167.5) .. controls (287,145.68) and (304.68,128) .. (326.5,128) .. controls (348.32,128) and (366,145.68) .. (366,167.5) .. controls (366,189.32) and (348.32,207) .. (326.5,207) .. controls (304.68,207) and (287,189.32) .. (287,167.5) -- cycle ;
+    
+    % Text Node
+    \draw (138,76.8) node [anchor=north west][inner sep=0.75pt]    {$\overline{X}$};
+    % Text Node
+    \draw (337,75.8) node [anchor=north west][inner sep=0.75pt]    {$\overline{Y}$};
+    % Text Node
+    \draw (168,159.8) node [anchor=north west][inner sep=0.75pt]    {$S$};
+    % Text Node
+    \draw (315,157.8) node [anchor=north west][inner sep=0.75pt]    {$T$};
+    
+    
+    \end{tikzpicture}
+\end{figure}
+
+Entonces, $T$ forma parte de $c$ 
+por lo tanto forma parte de la última cola. Entonces todos sus elementos fueron 
+agregados por alguien (pues $S \notin T$), ese alguien debe ser vecino, y como el 
+grafo es bipartito y $T \subseteq \bar{Y}$, esos vecinos deben estar en $\bar{X}$.
+\medskip
+
+Pero además deben haber estado en la cola, es decir, que están en $c$. Entonces 
+el vecino estaba en $S$. En resumen:
+\medskip
+
+$\forall y\in T, \exists x\in S: xy \in E \Rightarrow$ si $xy$ es lado $\Rightarrow$
+$y$ es vecino $x$ con $x\in S$. Entonces, $y\in \Gamma(x) \subseteq \Gamma(S) \Rightarrow$
+\begin{equation}
+    T \subseteq \Gamma(S)
+    \label{eq:1hall}
+\end{equation}
+Pero además:
+\begin{equation}
+    \Gamma(S) \subseteq T
+    \label{eq:2hall}
+\end{equation}
+
+Ahora probemos \ref{eq:2hall}, para ver si se cumple la igualdad. Sea 
+$y\in \Gamma(S) \Rightarrow \exists x\in S: xy\in E$ ($x$ esta en la cola).
+\medskip
+
+Supongamos que si $f(\overrightarrow{xy}) = 0$ entonces $x$ puede agregar a $y$ 
+a la cola entonces $y \in T$.
+\medskip
+
+Supongamos que si $f(\overrightarrow{xy}) = 1$ entonces $x$ no puede agregar a $y$ 
+a la cola pero $x\in S$ entonces algún vertice $z$ agrego a $x$ a la cola.
+\medskip
+
+Como $f(\overrightarrow{xy}) = 1$ entonces $out_{f}(x)=1 \Rightarrow In_{f}(x)=1 \Rightarrow f(\overrightarrow{sx})=1$.
+Entonces, $s$ no agrego a $x$ a la cola por lo que $z \neq s$.
+\medskip
+
+Como $z$ debe ser un vecino de $x$ y $z \neq s$ entonces $z \in \bar{Y}$. Y para 
+agregar a $x$, lo debe haber hecho backward, entonces $f(\overrightarrow{xz})=1$ 
+sino no puede. Entonces: $f(\overrightarrow{xy})=1$ y $f(\overrightarrow{xz}) = 1$, 
+por lo que $y=z$.
+\medskip
+
+Pero si $y=z$, agrego a $x$ a la cola, y esta en $c$, entonces 
+$y\in c \cap \bar{Y} = T$, con esto \ref{eq:2hall} queda demostrado.
+\medskip
+
+Además, \ref{eq:1hall} y \ref{eq:2hall} $\Rightarrow$ 
+\begin{equation}
+    T = \Gamma(S)
+    \label{eq:3hall}
+\end{equation}
+
+Sea $S_{0} = \llaves{x\in \bar{X}: In_{f}(x)=0}$, entonces $s$ agrega a los vertices 
+de $S_{0}$ a la cola, entonces:
+\begin{equation}
+    S_{0} \subseteq S
+    \label{eq:4hall}
+\end{equation}
+
+Como estamos suponiendo que $v(f) \neq |\bar{X}|$, entonces:
+\begin{equation}
+    S_{0} \neq \emptyset
+    \label{eq:5hall}
+\end{equation}
+(me queda al menos un vertice sin matchear).
+\medskip
+
+Queremos comparar $S - S_{0}$ con $T$.
+\medskip
+
+$y\in T \Leftrightarrow y$ es puesto en la cola por alguien pero como $t\notin c$, 
+y no puede poner a $t$. Entonces, $f(\overrightarrow{yt})=1 \Rightarrow out_{f}(y)=1$ 
+y $In_{f}(y)=1$. Entonces $\exists x: f(\overrightarrow{xy})=1$.
+\medskip
+
+Como $f(\overrightarrow{xy})=1$ entonces, $y$ agrega a $x$ a la cola y $x\in S$ 
+además $out_{f}(x) =1 \Rightarrow In_{f}(x)=1 \Rightarrow x \notin S_{0}$. 
+Entonces, podemos concluir que $x\in S-S_{0}$. Y hay un solo $x$ con 
+$f(\overrightarrow{xy})=1$.
+\medskip
+
+Entonces, tengo una función $y\to x$ y $T$ a $S-S_{0}$ inyectiva, pero además 
+si $x\in S-S_{0}$ entonces $in_{f}(x)=1 \Rightarrow out_{f}(x)=1 \Rightarrow \exists y: f(\overrightarrow{xy})=1$.
+\medskip
+
+Entonces $y\in \Gamma(S) = T$ entonces tengo una biyección entre 
+\begin{equation}
+    T\,\, \text{y}\,\, S-S_{0}
+    \label{eq:6hall}
+\end{equation}
+Finalmente:
+
+\begin{equation}
+    |\Gamma(S)| \underbrace{=}_{\ref{eq:3hall}} |T| \underbrace{=}_{\ref{eq:6hall}} |S-S_{0}| \underbrace{=}_{\ref{eq:4hall}} |S| - |S_{0}| < |S|
+\end{equation}
+
+La última desigualdad vale pues $S_{0} \neq \emptyset$. Hemos probado que 
+$|\Gamma(S)| < |S|$, lo que contradice la hipótesis de que $|S| \< |\Gamma(S)|$.
+para todo $S \subseteq \bar{X}$.
+%%%%%% 9 %%%%%%
+\begin{itemize}
+    \item [9)] \textbf{Enunciar y probar el teorema del matrimonio de Konig}
+    \label{dem:konig}
+\end{itemize}
+
+\begin{teorema} (matrimonio de konig) Todo grafo bipartito regular tiene un matching 
+    perfecto (todos los vertices forman parte del matching).
+\end{teorema}
+
+\underline{Prueba:} Dado un conjunto de vertices definimos:
+
+$$E_{w} = \llaves{zw\in E: w\in W}$$
+
+Sean $\bar{X}$ e $\bar{Y}$ las partes de $G$ y supongamos $W \subseteq \bar{X}$ 
+(completamente contenido en $\bar{X}$). Entonces:
+\begin{align*}
+    |E_{w}| &= |\llaves{zw: w\in W}| \\
+    &\text{Como $W\subseteq \bar{X}$ y no hay lados entre vertices de $\bar{X}$},\\ 
+    &\text{cada lado que aparece en $E_{w}$, aparece una sola vez} \\
+    &=\sum_{w\in W} |\Gamma(w)|\\
+    &=\sum_{w\in W} \delta(w)\\
+    &\text{Como $G$ es regular}\\
+    &\sum_{w\in W} \Delta = \Delta |W|
+\end{align*}
+Si $W \subseteq \bar{Y}$ vale el mismo analisis y tambien tenemos que $|G_{w}| = \Delta |W|$.
+\medskip
+
+Primero demostraremos que hay un matching completo (basta demostrar la condición 
+de Hall).
+\medskip
+
+Sea $S \subseteq \bar{X}$ y sea $l \in E_{s}$, entonces $l$ es de la forma $l=xy$ 
+con $x\in S$ y $y\in \bar{Y}$. Como $l$ es lado, entonces $y$ es vecino de $x$ 
+entonces $y\in \Gamma(x)$. Pero $x\in S \Rightarrow y\in \Gamma(S)$. Como $l=xy$ 
+entonces si $y\in \Gamma(S) \Rightarrow l\in E_{\Gamma(S)}$.
+\medskip
+
+Conclusión: $E_{S} \subseteq E_{\Gamma(S)} \Rightarrow |E_{s}| \< |E_{\Gamma(S)}|$. 
+Y como $S \subseteq \bar{X} \Rightarrow |E_{S}| = \Delta |S|$. A su vez, 
+$\Gamma(S) \subseteq \bar{Y} \Rightarrow |E_{\Gamma(S)}| = \Delta |\Gamma(S)|$. 
+Entonces podemos decir que 
+$\cancel{\Delta} |S| \< \cancel{\Delta} |\Gamma(S)| \Rightarrow |S| \< |\Gamma(S)|$.
+\medskip
+
+Entonces se satisface la condición de Hall, podemos afirmar que existe matching 
+completo de $x$ a $y$. Para ver que ese matching es perfecto basta ver que 
+$|\bar{X}| = |\bar{Y}|$.
+\medskip
+
+Como $G$ es bipartito los unicos lados son entre $x$ e $y$. Entonces:
+\begin{align*}
+    E &= E_{\bar{X}} + E_{\bar{Y}}\\
+    &\text{Por lo tanto}\\
+    &|E_{\bar{X}}| = |E_{\bar{Y}}|\\
+    &\text{Como $G$ es regular}\\
+    &\Delta |\bar{X}| = \Delta |\bar{Y}|\\
+    &|\bar{X}| = |\bar{Y}|
+\end{align*}
+
+%%%%%% 10 %%%%%%
+\begin{itemize}
+    \item [10)] \textbf{Probar que si $G$ es bipartito entonces 
+    $\chi^{'}(G) = \Delta(G)$}
+    \label{dem:chi}
+\end{itemize}
+
+\begin{corolario} (tambien de koring) $G$ bipartito entonces $\chi^{'}(G) = \Delta(G)$.
+\end{corolario}
+
+Donde $\chi^{'}(G)$ es el indice cromatico (lados del un grafo), osea, la menor 
+cantidad de colores necesarios para colorear los lados de un grafo de forma tal 
+que lados con un vertice en común tengan colores distintos. Es obvio que $\Delta \< \chi^{'}(G)$.
+\begin{figure}[H]
+    \centering
+    \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+    \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+    %uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+    
+    %Straight Lines [id:da7690582805815367] 
+    \draw    (201,99) -- (200,219) ;
+    %Straight Lines [id:da936663735130838] 
+    \draw    (220,112) -- (219,220) ;
+    %Straight Lines [id:da7530223958992941] 
+    \draw    (241,107) -- (240,220) ;
+    %Straight Lines [id:da020592477605207327] 
+    \draw    (258,107) -- (257,220) ;
+    \end{tikzpicture}
+\end{figure}
+
+\underline{Prueba:} Supongamos $G$ regular, por el teorema del matrimonio $G$ 
+tiene un matching perfecto, puedo colorear a todos con un color sin ningún 
+problema, ej. puedo usar el color $1$.
+\medskip
+
+Luego remuevo los lados, entonces $\widetilde{G} = G -\text{esos lados}$, cada 
+vertice disminuye su grado en $1$. Entonces $\widetilde{G}$ sigue siendo regular. 
+Por lo que tiene un matching perfecto. Coloreo esos lados con el color $2$, los 
+remuevo, etc. Y así sucesivamente.
+\medskip
+
+Siempre va a ser regular hasta el final y terminamos coloreando con $\Delta$ 
+colores. 
+
+\begin{lema} $G$ bipartito, entonces existe $H$ bipartito regular tal que 
+    $G \subseteq H$. Entonces $\Delta(G) = \Delta(H)$.
+\end{lema}
+
+\underline{Prueba:} Si $G$ es un grafo bipartito, entonces podemos encontrar un 
+grafo bipartito regular $H$ tal que $G \subseteq H$. Esto se debe a que un grafo 
+bipatito regular es un grafo en el que todos los vertices tienen el mismo número 
+de vecinos. Para encontrar un grafo que contenga a $G$, podemos comenzar por 
+elegir cualquier conjunto de vértices de $G$ que formen un conjunto 
+completo. Luego, podemos agregar vértices adicionales al grafo uno por uno, 
+asegurandonos de que todos los nuevos vértices estén conectados a todos los 
+vértices existentes. El grafo resultante será un grafo bipartito tegular que 
+contiene a $G$.
+\medskip
+
+Una vez que hemos encontrado un grafo bipartito regular $H$ que contenga a $G$, 
+podemos mostrar que $\Delta(G) = \Delta(H)$. Esto se debe a que todos los 
+vértices de $G$ tienen el mismo número de vecinos en $H$. Por lo tanto, el 
+grado de cualquier vertice en $G$ debe ser igual al grado de cualquier 
+vertice de $H$. Esto significa que $\Delta(G) = \Delta(H)$.
+\medskip
+
+Entonces $\chi^{'}(H) = \Delta$. $G \subseteq H \Rightarrow \chi^{'}(G) \< \Delta$. 
+Como $\Delta \< \chi^{'}(G) \Rightarrow \chi^{'}(G) = \Delta$.
+
+%%%%%% 11 %%%%%%
+\begin{itemize}
+    \item [11)] \textbf{Probar la complejidad $O(n^{4})$ del algoritmo Hungaro y 
+    dar una idea de como se la puede reducir a $O(n^{3})$.}
+    \label{dem:hungaro}
+\end{itemize}
+
+\begin{teorema} La complejidad del algoritmo Hungaro como lo vimos en clase es $O(n^4)$.
+\end{teorema}
+
+\underline{Prueba:} 
+Se corre EK sobre la matriz y, crucialmente, no tenemos que cambiar ningún network 
+al cambiar la matriz, y vimos que al cambiar la matriz se pueden perder algunos 
+ceros pero ninguno del matching parcial que tenemos hasta el momento.
+\medskip
+
+Como no se pierde ningún cero del matching parcial que tenemos, podemos continuar 
+con la busqueda como veniamos, simplemente revisando las columnas donde hay nuevos 
+ceros si lo hacemos completamente con el sistema de matriz o bien agregando esas 
+columnas a la cola si lo hacemos con colas explícitas.
+\medskip
+
+De esta forma continuaremos con varios posibles cambios de matriz en el medio, 
+pero terminaremos agregando UN lado extra al matching.
+\medskip
+
+Restar el $min$ de una fila es $O(n)$, entonces restar $min$ de 
+cada fila es $O(n^2)$. Es el mismo análisis para restar $min$ a cada columna 
+es $O(n^{2})$.
+\medskip
+
+Hallar matching inicial es $O(n^2)$ pues hay que revisar $n$ filas y para cada 
+una de las $n$ columnas. Este matching se puede extender a lo sumo 
+$O(n)$ veces. Por lo tanto:
+$$\text{Complejidad Hungaro} = O(n^2) + O(n)*(\text{Complejidad de extender matching en un lado})$$
+
+Para extender el matching, hay que revisar $n$ filas buscando ceros, entonces cada 
+busqueda es $O(n)$, por lo tanto en el peor de los casos si revisamos todas
+las filas hasta poder extender el matching es $O(n^{2})$.
+\medskip
+
+Luego de revisar a lo sumo $n$ filas, si o si extendemos el matching pero 
+en el medio quizas debamos hacer cambios de matrices, si seguimos con el matching 
+parcial que teniamos, no hace falta re-escanear las filas de $S$ (esta dentro del 
+cambio de matriz).
+\medskip
+
+Y además por el lema sabemos que hay $\< O(n)$ cambios de matries antes de extender 
+el matching. Por lo tanto:
+$$\text{Complejidad de extender el matching en un lado} = \underbrace{O(n^{2})}_{\text{escanear filas}} + \underbrace{O(n)}_{\text{\# cambio de matrices}} * CCM$$
+
+donde $CCM$ es la complejidad de hacer un cambio de matriz (esto pude cambiar al programarlo).
+Entonces, cambiar la matriz requiere:
+\medskip
+
+\begin{itemize}
+    \item [1.] Calcular $m = \min \llaves{S \times \overline{\Gamma(S)}}$ (esto es $O(|S \times \overline{\Gamma(S)}|)=O(n^2)$).
+    \item [2.] Restar $m$ de $S$ (filas) esto es $O(n)*|S| = O(n^2)$. Sumar $m$ a $\Gamma(S)$ (columnas) 
+        eso es $O(n)*|\Gamma(S)| = O(n^2)$.
+\end{itemize}
+Entonces:
+$$CCM = O(n^2) + O(n^2) + O(n^2) = O(n^2)$$
+
+Por lo tanto:
+$$\text{Complejidad hungaro} = O(n^{2}) + O(n)*(O(n^{2}) + O(n)*O(n^{2})) = O(n^{4})$$
+
+\begin{teorema} El hungaro se puede coficar en $O(n^3)$.
+\end{teorema}
+\underline{Prueba:}
+\medskip
+
+Hay que tratar de hacer que $CCM = O(n)$, entonces:
+$$\text{Complejidad hungaro} = O(n^{2}) + O(n)*(O(n^{2}) + O(n)*O(n)) = O(n^{3})$$
+
+Debemos:
+\begin{itemize}
+    \item [1.] Hallar un $min$ de $O(n^{2})$ elementos en $O(n)$.
+    \item [2.] Debemos cambiar $O(n^{2})$ elementos en $O(n)$.
+\end{itemize}
+
+Para hacer $1.$ parte del costo de hallar cada $m$ se traslada a la parte donde 
+escaneamos filas, entonces:
+\begin{align*}
+    m &= \min \llaves{S \times \overline{\Gamma(S)}},\,\, \text{Sea $C$ la matriz de costos} \\
+    &= \min \llaves{C_{x,y} : x \in S, y \notin \Gamma(S)} \\
+    &= \min_{y\notin \Gamma(S)} \parent{\min_{x\in S}\llaves{C_{x,y}}}\,\,(\text{esto de puede calcular en $O(n)$ haciendo})\\
+    &= \min_{y \notin \Gamma(S)} M_{y} 
+\end{align*}
+
+donde $M_{y} = \min_{x\in S}\llaves{C_{x,y}}$, siempre hay que tenerlo precalculado. Precalcular 
+los $M_{y}$ demanda $O(n)$ pero los podemos hacer cuando escanemos una fila al 
+buscar cero, en los no cero actualizamos $M_{y}$.
+\medskip
+
+Para $2.$ hacemos una resta y suma virtual (indicar cuanto se le deberia restar y sumar). 
+Entonces usamos $RF(x)$ que indique cuanto restarle a la fila $x$ y $SC(x)$ que indique 
+cuanto sumarle a la columna $y$.
+\medskip
+
+Restar $m$ de $S$ es simplemente hacer $RF(x) += m,\, \forall x\in S$ esto es $O(n)$.
+
+Sumar $m$ a $\Gamma(S)$ es simplemente hacer $SC(y) += m,\, \forall y\in \Gamma(S)$ esto es $O(n)$.
+\medskip
+
+El problema es el chequeo de ceros. Entonces, en vez de hacer
+\begin{lstlisting}[language=C]
+    if(0 == C(x)(y))
+\end{lstlisting}
+
+se chequea haciendo:
+\begin{lstlisting}[language=C]
+    if(0 == C(x)(y) - RF(x) + SC(y))
+\end{lstlisting}
+que es $O(1)$.
+
+%%%%%% 12 %%%%%%
+\begin{itemize}
+    \item [12)] \textbf{Enunciar el teorema de la cota de Hamming y probarlo}
+    \label{dem:hamming}
+\end{itemize}
+\begin{teorema} (cota de hamming) Sea $C$ código de longitud $n$, $t = \lfloor \frac{\delta -1}{2} \rfloor$, entonces:
+    $$|C| \< \frac{2^{n}}{1+n+ \binom{n}{2} + \cdots + \binom{n}{t}}$$
+\end{teorema}
+\underline{Prueba:}
+
+Sea $A = \bigcup_{x\in C} D_{t}(x)$. Como $C$ corrige $t$ errores, 
+$D_{t}(x) \cap D_{t}(y) = \emptyset,\, \forall x,y\in C, x\neq y$. Entonces esa 
+unión es disjunta por lo que $|A| = \sum_{x\in C} |D_{t}(x)|$.
+\medskip
+
+Queremos calcular $|D_{t}(x)|$, para ello definimos $S_{r}(x) = \llaves{y\in \llaves{0,1}^{n}: d_{H}(x,y)=r}$ 
+(parto al disco en circulos de radio $r$).
+\medskip
+
+Entonces, $D_{t}(x) = \bigcup_{r=0}^{t} S_{r}(x)$ y la unión es disjunta. Entonces 
+$$|D_{t}(x)| = \sum_{r=0}^{t} |S_{r}(x)|$$
+
+$y\in S_{r}(x) \iff y\,\, \text{difiere de $x$ en exactamente $r$ lugares}$.
+\medskip
+
+$y\in S_{r}(x) \to r$ lugares ($r$ posiciones del conjunto $\llaves{1,2, \ldots, n}$), 
+es un biyección.
+\medskip
+
+Cada $y\in S_{r}(x)$ determina $r$ lugares y el conjunto de $r$ lugares determina 
+un $y\in \delta(x)$. Entonces:
+$$|S_{r}(x)| = |\llaves{L \subseteq \llaves{1,\ldots,n}:|L|=r}| = \binom{n}{r}$$
+
+(es cantidad de conjuntos de subconjuntos). Por lo tanto:
+\begin{align*}
+    |A| &= \sum_{x\in C} |D_{t}(x)| = \sum_{x\in C} \sum_{r=0}^{t} |S_{r}(x)|\\
+    &= \sum_{x\in C} \sum_{r=0}^{t} \binom{n}{r}\\
+    &= \parent{\sum_{r=0}^{t} \binom{n}{r}} \cdot |C|\\
+\end{align*}
+Despejando $C$:
+$$|C| = \frac{|A|}{\sum_{r=0}^{t} \binom{n}{r}}\< \frac{2^{n}}{\sum_{r=0}^{t} \binom{n}{r}}$$
+
+la desiguandad sale de que $A = \bigcup_{x\in C} D_{t}(x) \subset \llaves{0,1}^{n}$.
+$\square$
+
+%%%%%% 13 %%%%%%
+\begin{itemize}
+    \item [13)] \textbf{Probar que si $H$ es matriz de chequeo de $C$, entonces
+        $$\delta(C) = \min {j: \exists \,\,\text{un conjunto de $j$ columnas LD de $H$}}$$
+        (LD es linealmente dependiente)}
+    \label{dem:delta}
+\end{itemize}
+
+Un código es lineal si es un subespacio vectorial de $\llaves{0,1}^{n}$.
+
+\begin{definition} El peso de Hamming es $|x|=d_{H}(x,0)=\# \, \text{de 1's de $x$}$.
+\end{definition}
+
+\underline{Propiedad} $C$ lineal $\Rightarrow \delta(C) = \min \llaves{|v|: v\in C, v\neq 0}$.
+es lineal en el orden de palabras, sino es lineal $n\times n$ comparaciones, donde 
+$n$ es el número de palabras.
+\medskip
+
+\underline{Prueba:}
+\begin{teorema} Si $H$ es matriz de chequeo de $C$, entonces:
+    \begin{align*}
+        \delta(C) &= \min\,\,\llaves{\text{número de columnas de $H$ que son LD}}\\
+        &= \min \llaves{r: \exists r\,\text{columnas LD de $H$}}
+    \end{align*}
+\end{teorema}
+
+\underline{Prueba:}
+\medskip
+
+Sea $m = \min \llaves{r: \exists r\,\text{columnas LD de $H$}}$. Probaremos 
+$\delta(C) \< m$ y luego $\delta(C) \> m$. Denotaremos la $j-$ésima columna de $H$ 
+por $H^{(j)}$. Por definición de $m$ existe $j_{1},\ldots j_{r}$ tal que 
+$H^{(j_{1})},\ldots, H^{(j_{r})}$ son LD.
+\medskip
+
+Entonces existen $c_{1},\ldots, c_{r}$ no todos $0$ tales que:
+$$c_{1}H^{(j_{1})} + \cdots + c_{r}H^{(j_{r})} = 0$$
+
+Sea $e_{i} = (0,\ldots,0,1,0,\ldots,0)$ con $1$ en la posición $i$. Entonces:
+\begin{equation*}
+    He_{i}^{t} =
+    \begin{bmatrix}
+        &   & i      &   &   & \\
+        &   & \vdots &   &   & \\
+        &   & i      &   &   & \\
+        &   & \vdots &   &   & \\
+        &   & i      &   &   & \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        0\\
+        \vdots\\
+        1\\
+        \vdots\\
+        0
+    \end{bmatrix}
+    =
+    H^{(i)}
+\end{equation*}
+
+Es la columna $i-$ésima de $H$.
+\medskip
+
+Sea $x = c_{1}e_{j_{1}}+c_{2}e_{j_{2}}+\ldots + c_{r}e_{j_{r}}$, como no todos
+los $c_{j}$ son $0$, entonces $x \neq 0$, por lo que:
+\begin{align*}
+    Hx^{t} &= H(c_{1}e_{j_{1}}^{t}+c_{2}e_{j_{2}}^{t}+\ldots + c_{r}e_{j_{r}}^{t})\\
+    &= c_{1}He_{j_{1}}^{t}+c_{2}He_{j_{2}}^{t}+\ldots + c_{r}He_{j_{r}}^{t} \\
+    &= c_{1}H^{(j_{1})} + c_{2}H^{(j_{2})} +\ldots + c_{r}H^{(j_{r})} = 0\\
+    &\Rightarrow Hx^{t} = 0 
+\end{align*}
+
+$\Rightarrow x\in C$ pues $C =Nu(H)$, pero su peso es $\< m$, pues es suma de a 
+lo sumo $m$ vectores de peso $1$. y vimos que $x \neq 0$ entonces 
+sabemos que:
+$$\delta(C) = \min \llaves{|v| : v\in C, v\neq 0}$$
+Por lo tanto como $x \in C$ y $x \neq 0$, entonces $x$ está en ese conjunto, así 
+que tenemos:
+$$\delta(C) = \min \llaves{|v| : v\in C, v\neq 0} \< |x|$$
+Pero su peso es $\< m$, entonces:
+$$\delta(C) = \min \llaves{|v| : v\in C, v\neq 0} \< |x| \< m$$
+Entonces, $\delta(C) \< m$.
+\medskip
+
+La otra parte de la desigualdad. Sea $x\neq 0 : \delta(C) = |x|$, entonces:
+\begin{align*}
+    x &= c_{1}e_{i_{1}} + \ldots + c_{\delta(C)}e_{i_{\delta(C)}}\\
+    =&\llaves{\text{como $x\in C$, entonces $x\neq 0$}}\\
+    0 &= Hx^{t} = H^{(i_{1})} + \ldots + H^{(i_{\delta(C)})}\\
+    &\Rightarrow \llaves{H^{j},\ldots, H^{(i_{\delta(C)})}}\,\text{son LD} \Rightarrow m \< \delta(C)
+\end{align*} $\square$
+
+%%%%%% 14 %%%%%%
+\begin{itemize}
+    \item [14)] \textbf{Sea $C$ un código cíclico de dimensión $k$ y longitud $n$ y sea $g(x)$ 
+    su polinomio generador. Probar que:
+    \begin{itemize}
+        \item [i)] $C$ esta formado por los multiplos de $g(x)$ de grado menor 
+            que $n$.
+            $$C = \llaves{p(x):gr(p) < n \,\,\&\,\, g(x) | p(x)}$$
+        \item [ii)] $C = \llaves{v(x) \odot g(x) : \,\, \text{$v$ es un polinomio cualquiera}}$
+        \item [iii)] $gr(g(x)) = n - k$
+        \item [iv)] $g(x)$ divide a $1+x^{n}$
+    \end{itemize}}
+    \label{dem:polinomio}
+\end{itemize}
+
+\begin{teorema} (Fundamental de código ciclico) Sea $C$ un código ciclico de 
+    longitud $n$ con generador $g(x)$ entonces:
+    \begin{itemize}
+        \item [1)] $C = \llaves{p(x)\in \mathbb{Z}_{2}(x):gr(p)<n \wedge g(x)|p(x)}$ por esto 
+            se dice que $C$ es generador (son los multiplicos de $g(x)$ de menor grado).
+        \item [2)] $C = \llaves{v(x)\odot g(x): v\in \mathbb{Z}_{2}(x)}$ son los multiplos 
+            de $g$ modulares.
+        \item [3)] Si $k=Dim(C)$ entonces $gr(g)=n-k$.
+        \item [4)] $g(x) | (1+x^{n})$.
+        \item [5)] Si $g(x) = g_{0} + g_{1}x + \ldots +$ entonces $g_{0}=1$.
+    \end{itemize}
+\end{teorema}
+
+\underline{Prueba:}
+\medskip
+
+Sea $C_{1} = \llaves{p(x)\in \mathbb{Z}_{2}(x): gr(p)<n \wedge g(x)|p(x)}$ y
+$C_{2} = \llaves{v(x)\odot g(x): v\in \mathbb{Z}_{2}(x)}$. Hay que demostrar que 
+$C \subseteq C_{1}, C_{2} \subseteq C$ y $C_{1} \subseteq C_{2}$.
+\medskip
+
+Tenemos que ver $C_{1} \subseteq C_{2}$, entonces $p(x) \in C_{1}$ y veremos si 
+esta en $C_{2}$.
+\medskip
+
+Entonces $gr(p)<n \wedge g(x)|p(x)$, entonces existe $q(x): p(x) = g(x)q(x)$
+tomando modulo nos queda:
+\begin{align*}
+    p(x) \mod (1+x^{n}) &= g(x)q(x)\mod (1+x^{n})\\
+    &= g(x) \odot q(x) \in C_{2}
+\end{align*}
+
+Como $gr(p) < n \Rightarrow p(x) \mod (1+x^{n}) = p(x) \Rightarrow p(x) \in C_{2}$.
+\medskip
+
+Ahora veamos que $C_{2} \subset C$, puesto que $g(x) \in C_{2}$ y debido a esto dada 
+cualquier palabra $v(x)$ en C, $v(x) \odot g(x) \in C$
+\medskip
+
+$C \subseteq C_{1}$, Sea $p(x) \in C$ como las palabras de $C$ tienen longitud $n$, 
+entonces $gr(p) < n$ (A).
+\medskip
+
+Dividamos $p(x)$ por $g(x)$ entonces existe $q(x)$ y $r(x)$ tal que:
+\begin{align*}
+    p(x) &= g(x)q(x) + r(x), \,\, gr(r) < gr(g)\\
+    &\text{Tomando modulo y usando $gr(p)<n$}\\
+    p(x) \mod (1+x^{n}) &= g(x)q(x) + r(x) \mod (1+x^{n})\\
+    &= g(x)q(x) \mod (1+x^{n}) + \underbrace{r(x) \mod (1+x^{n})}_{gr(r)<gr(g)<n}\\
+    p(x) &= g(x) \odot q(x) + r(x)
+\end{align*}
+
+Por lo tanto:
+\begin{align*}
+    r(x) = \underbrace{\underbrace{p(x)}_{\in C} + \underbrace{g(x) \odot q(x)}_{\in C_{2}}}_{\in C\,\,\text{porque $C$ es lineal}}
+\end{align*}
+
+Pero $gr(r) < gr(g) = \,\,\text{menor grado de un polinomio no nulo en $C$}$. 
+Entonces $r(x) = 0 \Rightarrow p(x) = g(x)q(x) \Rightarrow g(x)|p(x)$ (B).
+\medskip
+
+Entonces por (A) y (B) $\Rightarrow C \subseteq C_{1}$
+\medskip
+
+\underline{Prueba de 3):} $C = C_{1}$ dice que:
+\begin{align*}
+    C &= \llaves{q(x)g(x): gr(qg)<n} \\
+    &= \llaves{q(x)g(x): gr(q)+gr(g)<n} \\
+    &= \llaves{q(x)g(x): gr(q)<n-gr(g)} \\
+\end{align*}
+Limito el grado de $q$. Entonces:
+\begin{align*}
+    |C| &= |\llaves{q(x)g(x):gr(q) < n-gr(g)}|\\
+    &= \llaves{\text{Como conjunto no son iguales, pero tienen la misma $\#$ de elementos}}\\
+    &= |\llaves{q(x):gr(q)<n-gr(g)}|\\
+    &= 2^{n-gr(g)}\\
+\end{align*}
+Pero $|C| = 2^{k} \Rightarrow k = n- gr(g)$. Entonces $gr(g) = n-k$.
+\medskip
+
+\underline{4):} Dividamos $1+x^{n}$ por $g(x)$, entonces:
+\begin{align*}
+    1+x^{n} &= g(x)q(x) + r(x),\,\, gr(r) < gr(g)\\
+    &=\llaves{\text{Despejando $r(x)$}}\\
+    r(x) &= (1+x^{n}) + g(x)q(x)\\
+    &=\llaves{\text{Como $gr(r) < gr(g) < n$ entonces $r(x) = r(x) \mod (1+x^{n})$}}\\
+    r(x) &= ((1+x^{n}) + g(x)q(x)) \mod (1+x^{n})\\
+    &= (1+x^{n}) \mod (1+x^{n}) + (g(x)q(x)) \mod (1+x^{n})\\
+    &= 0 + q(x) \odot g(x)\\
+    &= q(x) \odot g(x) \in C
+\end{align*}
+Como $r(x) \in C$ y $gr(r) < gr(g)$, entonces $r(x) = 0 \Rightarrow g(x)|(1+x^{n})$.
+
+%%%%%% 15 %%%%%%
+\begin{itemize}
+    \item [15)] \textbf{Probar que $3$SAT es NP-completo}
+    \label{dem:3sat}
+\end{itemize}
+
+\begin{teorema} (Karp, 1978) $3-$SAT es $NP-$COMPLETO.
+\end{teorema}
+
+Nosotros vamos a demostrar que $3-$Color es $NP-$COMPLETO, para ello usaremos 
+$SAT \to 3-SAT \to 3-Color$, para el salto de $3-$SAT a $3-$Color usaremos 
+un grafo bastante complejo que se puede colorear con $3$ colores. Cabe resaltar 
+que el salto de $3$ a $2$ es $NP-$COMPLETO por esto.
+\medskip
+
+\underline{Prueba del teorema:}
+\medskip
+
+Veremos que $SAT \<_{p} 3-SAT$.
+\medskip
+
+Entonces, sea $B$ en forma conjuntiva normal ($CNF$) tal que 
+$B = D_{1} \wedge \ldots \wedge D_{r}$ con 
+$D_{j} = l_{1,j} \vee l_{2,j} \vee \ldots \vee l_{i,j}$ con $l_{r_{j},j}$ literales.
+\medskip
+
+Queremos construir $\widetilde{B}$ polinomialmente tal que $\widetilde{B}$ este en
+$CNF$ con $3$ literales por disjunción tal que $B$ sea satisfacible si y solo si 
+$\widetilde{B}$ es satisfacible.
+\medskip
+
+Voy a definir unos $E_{j}$ y $\widetilde{B} = E_{1} \wedge \ldots \wedge E_{n}$.
+\medskip
+
+Cada $E_{j}$ lo definimos a partir de $D_{j}$, y procedemos de diferente manera 
+según la cantidad de literales $r_{j}$ presentes en $D_{j}$, entonces:
+\medskip
+
+Si $r_{j} = 3$ tenemos que $E_{j} = D_{j}$, por lo que no hago nada.
+\medskip
+
+Si $r_{j} < 3$ agregamos variables mudas que no afectan el resultado, vemos los casos:
+\begin{itemize}
+    \item $r_{j} = 2 \to D_{j}=l_{1,j}\vee l_{2,j}$\\
+        $E_{j} = (l_{1,j} \vee l_{2,j} \vee y_{j}) \wedge (l_{1,j} \vee l_{2,j} \vee \bar{y}_{j})$
+    \item $r=1 \to D_{j} = l_{1,j}$\\
+        $E_{j} = (l_{1,j} \vee y_{1,j} \vee y_{2.j}) \wedge (l_{1,j} \vee \bar{y}_{1,j} \vee y_{2,j}) \wedge 
+        (l_{1,j} \vee y_{1,j} \vee \bar{y}_{2,j}) \wedge (l_{1,j} \vee \bar{y}_{1,j} \vee \bar{y}_{2,j})$
+\end{itemize}
+
+Si $r_{j} > 3$ es el problema más grande:
+$$D_{j} = l_{1,j} \vee l_{2,j} \vee \ldots \vee l_{r_{j},j}$$ 
+
+entonces:
+\begin{align*}
+    E_{j} = &(l_{1,j} \vee l_{2,j} \vee y_{1,j}) \wedge (l_{3,j} \vee y_{2,j} \vee \bar{y}_{1,j}) \\
+    &\wedge (l_{4,j} \vee y_{3,j} \vee \bar{y}_{2,j}) \wedge \ldots \wedge (l_{r_{j-2},j} \vee y_{r_{j-3},j} \vee \bar{y}_{r_{j-4},j})\\
+    &\wedge (l_{r_{j-1},j} \vee l_{r_{j},j} \vee \bar{y}_{r_{j-3},j})
+\end{align*}
+
+Son variables booleanas para evaluarlas tengo que elegir un vector de $0's$ y $1's$.
+\medskip
+
+Ejemplo: Supongamos $\widetilde{B}$ satisfacible, $\widetilde{B}$ es suma de función de variables 
+$x_{1},\ldots x_{algo}$ y variables extra $y_{i,j}$. Podriamos denotarlo con 
+$\widetilde{B}(\overrightarrow{x}, \overrightarrow{y})$ mientras que $B$ depende 
+solo de las $\overrightarrow{x}$, es decir, $B(\overrightarrow{x})$.
+\medskip
+
+Es decir:
+$$\underbrace{B = D_{1} \wedge \ldots \wedge D_{n}}_{\overrightarrow{x}} \to \underbrace{\widetilde{B} = E_{1} \wedge \ldots \wedge E_{n}}_{\overrightarrow{x}, \overrightarrow{y}}$$
+
+% Por lo que $\widetilde{B}$ satisfacible entonces existen vectores $\overrightarrow{a}, \overrightarrow{b}$
+% tales que $\widetilde{B}(\overrightarrow{a}, \overrightarrow{b}) = 1$. 
+Vamos a demostrar que si  
+% $B(\overrightarrow{a}) = 1$.
+$\exists \overrightarrow{a}: B(\overrightarrow{a}) = 1 \Leftrightarrow \exists \overrightarrow{c}, \overrightarrow{b} : \widetilde{B}(\overrightarrow{c}, \overrightarrow{b}) = 1$.
+(la idea es ver que $\overrightarrow{a} = \overrightarrow{c}$)
+\medskip
+
+$(\Leftarrow)$ Supongamos que $\widetilde{B}(\overrightarrow{c}, \overrightarrow{b}) =1$ 
+queremos probar $B(\overrightarrow{a}) = 1$. Supongamos que no se cumple y llegaremos 
+a un absurdo, entonces se da $B(\overrightarrow{a}) = 0$.
+\medskip
+
+Como $B = D_{1} \wedge \ldots \wedge D_{n}$ entonces $\exists j : D_{j}(\overrightarrow{a}) = 0$, 
+pero $D_{j} = l_{1,j} \vee l_{2,j} \vee \ldots \vee l_{r_{j},j}$ donde todos 
+los terminos tienen que ser cero.
+\medskip
+
+Entonces, $l_{i,j}(\overrightarrow{a}) = 0\,\, \forall i$ (y ese $j$). Por otro 
+lado $\widetilde{B}(\overrightarrow{a}, \overrightarrow{b}) = 1 \Rightarrow \exists E_{j}(\overrightarrow{a},\overrightarrow{b}) = 1\,\, \forall j$
+en particular para ese $j$ que mencionamos antes.
+\medskip
+
+Ahora tenemos que ver los casos:
+\begin{itemize}
+    \item Si $r_{j} = 3$ tenemos que $E_{j} = D_{j}$ asi que esto es imposible.
+        $D_{j}(\overrightarrow{a}) = 0 \Rightarrow E_{j} = 0 \Rightarrow \widetilde{B}(\overrightarrow{a},\overrightarrow{b}) = 0$
+        Absurdo.
+    \item Si $r_{j} = 2$ tenemos que 
+        $E_{j} = (l_{1,j} \vee l_{2,j} \vee y_{j}) \wedge (l_{1,j} \vee l_{2,j} \vee \bar{y}_{j})$
+        pero $l_{i,j}(\overrightarrow{a}) = 0$ entonces:
+        \begin{align*}
+            1 &= E_{j}(\overrightarrow{a},\overrightarrow{b}) \\
+            &= (0 \vee 0 \vee y_{j}(\overrightarrow{b})) \wedge (0 \vee 0 \vee \bar{y}_{j}(\overrightarrow{b}))\\
+            &= y_{j}(\overrightarrow{b}) \wedge \bar{y}_{j}(\overrightarrow{b})\\
+            1 &= 0
+        \end{align*}
+        Absurdo.
+    \item $r_{j} =1$
+        \begin{align*}
+            1 &= E_{j}(\overrightarrow{a},\overrightarrow{b}) \\
+            &=(l_{1,j} \vee y_{1,j} \vee y_{2,j}) \wedge (l_{1,j} \vee y_{1,j} \vee \bar{y}_{2,j}) \wedge (l_{1,j} \vee \bar{y}_{1,j} \vee y_{2,j}) \wedge \\ 
+            &(l_{1,j} \vee \bar{y}_{1,j} \vee \bar{y}_{2,j})[\overrightarrow{a},\overrightarrow{b}]\\
+            &=(p \vee q) \wedge \underbrace{(\bar{p} \vee q) \wedge (p \vee \bar{q})}_{sii} \wedge (\bar{p} \vee \bar{q}) \\
+            &=0
+        \end{align*}
+        Absurdo.
+    \item $r_{j} > 4$
+        \begin{align*}
+            1 &= E_{j}(\overrightarrow{a},\overrightarrow{b}) \\
+            &= (l_{1,j} \vee l_{2,j} \vee y_{1,j}) \wedge (l_{3,j} \vee \bar{y}_{1,j} \vee y_{2,j}) \wedge (l_{4,j} \vee \bar{y}_{2,j} \vee y_{3,j}) \wedge \ldots \\ 
+            &\wedge (l_{r_{j}-2,j} \vee \bar{y}_{r_{j}-4,j} \vee y_{r_{j}-3,j}) \wedge (\bar{y}_{r_{j}-3,j} \vee l_{r_{j}-1,j} \vee l_{r_{j},j})[\overrightarrow{a},\overrightarrow{b}]\\
+            & \text{sabemos que:}\,\, l_{i,j}(\overrightarrow{a}) = 0\\
+            & \text{si}\,\, p_{i} = y_{i,j}(\overrightarrow{b}) = p_{1} \wedge (\bar{p}_{1} \vee p_{2}) \wedge (\bar{p}_{2} \vee p_{3}) \wedge \ldots \wedge (\bar{p}_{r_{j}-4} \vee p_{r_{j}-3}) \wedge \bar{p}_{r_{j}-3}\\
+            & p_{1} \wedge (p_{1} \Rightarrow p_{2}) \wedge (p_{2} \Rightarrow p_{3}) \wedge \ldots \wedge (p_{r_{j}-4} \Rightarrow p_{r_{j}-3}) \wedge \bar{p}_{r_{j}-3} =0
+        \end{align*}
+        Todos tienen que ser $1$ y el último $0$, es un absurdo.
+\end{itemize}
+
+$(\Rightarrow)$ Si $\exists \overrightarrow{a} : B(\overrightarrow{a}) = 1 \Rightarrow \exists \overrightarrow{b} : \widetilde{B}(\overrightarrow{a},\overrightarrow{b}) = 1$
+\medskip
+
+Para $r_{j} \< 3$ se le puede dar cualquier valor a los $y_{i,j}$ por ejemplo $0$ 
+y es trivial ver los casos $r_{j} = 1$ y $r_{j} = 2$
+\medskip
+
+El único problema grande es $r_{j} > 3$
+\medskip
+
+Como $B(\overrightarrow{a}) = 1$ entonces $D_{j}(\overrightarrow{a}) = 1\,\forall j$ 
+(y al menos un término de $D_{j}$ es $1$). Entonces, 
+$\exists i_{j} : l_{i_{j},j}(\overrightarrow{a}) = 1$.
+Si hay más de uno tomo cualquiera, por ejemplo el primero.
+\medskip
+
+Evaluamos los $y_{i,j}$ de forma tal que:
+\begin{align*}
+    y_{i,j}(\overrightarrow{b}) = 1 &\,\, si,\,\, i = 1,\ldots i_{j}-2 \\
+    y_{i,j}(\overrightarrow{b}) = 0 &\,\, si,\,\, i \> i_{j}-1
+\end{align*}
+
+Entonces, si evaluamos tenemos:
+\begin{align*}
+    E_{j}(\overrightarrow{a},\overrightarrow{b}) &= (l_{1,j} \vee l_{2,j} \vee \underbrace{y_{1,j}}_{=1}) \wedge \\
+    & (l_{3,j} \vee \bar{y}_{1,j} \vee \underbrace{y_{2,j}}_{=1}) \wedge \ldots \wedge \\
+    & (l_{i_{j}-1,j} \vee \bar{y}_{i_{j}-3,j} \vee \underbrace{y_{i_{j}-2,j}}_{=1}) \wedge \\
+    & (\underbrace{l_{i_{j},j}}_{=1(t)} \vee \bar{y}_{i_{j}-2,j} \vee y_{i_{j}-1,j}) \wedge \\
+    & (l_{i_{j}+1,j} \vee \underbrace{\bar{y}_{i_{j}-1},j}_{=1} \vee y_{i_{j},j}) \wedge \ldots \\
+    % & (l_{i_{j}-1,j} \vee l_{i_{j},j} \vee \underbrace{\bar{y}_{i_{j}-3,j}}_{=1})\\
+    &= 1
+\end{align*}
+$\square$
+
+%%%%%% 16 %%%%%%
+\begin{itemize}
+    \item [16)] \textbf{Probar que $3-$COLOR es NP-completo}
+    \label{dem:3color}
+\end{itemize}
+
+\begin{teorema} (Karp) $3-$Color es $NP-$COMPLETO.
+\end{teorema}
+
+\underline{Prueba:}
+\medskip
+
+Veremos que $3-$SAT $\leq_{p} 3-$Color. Es decir, dada una expresión booleana $B$ 
+en $CNF$ con $3$ literales por disjunción, debemos construir polinomialmente un grafo 
+$G$ tal que se cumpla que:
+$$B \text{ es satisfacible} \Leftrightarrow \chi (G) \leq 3$$ 
+
+Suponemos $B = D_{1} \wedge \ldots \wedge D_{m}$ con variables $x_{1}, \ldots x_{n}$ 
+y $D_{j} = l_{1,j} \vee l_{2,j} \vee l_{3,j}$. (por ser $3-$SAT, esto queda fijo).
+\medskip
+
+Construcción polinomialmente del grafo $G$:
+\medskip
+
+Vertices:
+$$\llaves{s,t} \cup \llaves{v_{l}: l\,\text{es literal}} \cup \llaves{a_{i,j},e_{i,j}}_{i= 1,2,3; j = 1,2,\ldots m}$$
+
+donde $\llaves{v_{l}: l\,\text{es literal}}$ es equivalente a $\llaves{v_{x_{1}},v_{x_{2}},\ldots ,v_{x_{n}},v_{\bar{x}_{1}},v_{\bar{x}_{2}},\ldots,v_{\bar{x}_{n}}}$
+\medskip
+
+Lados:
+\begin{itemize}
+    \item $st$
+    \item $tv_{l}$ para todo literal $l$
+    \item $v_{x_{i}}v_{\bar{x}_{i}}\,\, \forall i=1\ldots,n$
+    \item $a_{1,j}a_{2,j}$
+    \item $a_{2,j}a_{3,j}$
+    \item $a_{1,j}a_{3,j}$ estos últimos para $j = 1,2,\ldots,m$ y forman un 
+        triangulo los tres.
+    \item $a_{i,j}e_{i,j}$ para $i = 1,2,3$ y $j = 1,2,\ldots,m$
+    \item $se_{i,j}$ para $i = 1,2,3$ y $j = 1,2,\ldots,m$
+    \item Usando que es $3-$SAT, es decir, $D_{j} = l_{1,j} \vee l_{2,j} \vee l_{3,j}$ 
+        entonces tenemos $e_{i,j}v_{l_{i},j}$ para $i = 1,2,3$ y $j = 1,2,\ldots,m$.
+        Ejemplo: si $D_{j} = (x \vee \bar{x}_{2}\vee x_{4})$ entonces tengo 
+        $\overrightarrow{v_{x}e_{1,j}}, \overrightarrow{v_{\bar{x}_{2}}e_{2,j}}, \overrightarrow{v_{x_{4}}e_{3,j}}$
+\end{itemize}
+
+El grafo es como en la siguiente imagen:
+\begin{figure}[H]
+    \centering
+    \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+    \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+    %uncomment if require: \path (0,345); %set diagram left start at 0, and has height of 345
+
+    %Straight Lines [id:da024577145388274158] 
+    \draw    (282,24) -- (181,101) ;
+    %Straight Lines [id:da9147970884158108] 
+    \draw    (282,24) -- (196,110) ;
+    %Straight Lines [id:da24241664675971752] 
+    \draw    (282,24) -- (233,127.86) ;
+    %Straight Lines [id:da0019185310537932487] 
+    \draw    (282,24) -- (248,133) ;
+    %Straight Lines [id:da7044595354738321] 
+    \draw    (282,24) -- (290,138) ;
+    %Straight Lines [id:da12066461117319749] 
+    \draw    (282,24) -- (308,138) ;
+    %Straight Lines [id:da9216806050314463] 
+    \draw    (282,24) -- (433,92) ;
+    %Straight Lines [id:da8579836464252726] 
+    \draw    (181,101) -- (196,110) ;
+    %Straight Lines [id:da33046636333965984] 
+    \draw    (233,127.86) -- (248,133) ;
+    %Straight Lines [id:da8169841491168588] 
+    \draw    (290,138) -- (308,138) ;
+    %Shape: Triangle [id:dp5066112718925191] 
+    \draw   (178,245) -- (213,285) -- (143,285) -- cycle ;
+    %Straight Lines [id:da987499546806103] 
+    \draw    (178,213) -- (178,245) ;
+    %Straight Lines [id:da2327644054665976] 
+    \draw    (212,215) -- (213,285) ;
+    %Straight Lines [id:da6985649002842926] 
+    \draw    (142,215) -- (143,285) ;
+    %Shape: Triangle [id:dp9994407735338462] 
+    \draw   (286,246) -- (321,286) -- (251,286) -- cycle ;
+    %Straight Lines [id:da9924493799376253] 
+    \draw    (286,214) -- (286,246) ;
+    %Straight Lines [id:da27535775663210726] 
+    \draw    (320,216) -- (321,286) ;
+    %Straight Lines [id:da2242309455971152] 
+    \draw    (250,216) -- (251,286) ;
+    %Curve Lines [id:da11992808862863669] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (142,215) .. controls (152.54,207.09) and (201.5,171.7) .. (210,173) .. controls (218.5,174.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da7810373386432186] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (178,213) .. controls (188.54,205.09) and (237.5,169.7) .. (246,171) .. controls (254.5,172.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da7610424465229726] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (212,215) .. controls (222.54,207.09) and (271.5,171.7) .. (280,173) .. controls (288.5,174.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da4850711005271304] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (250,216) .. controls (260.54,208.09) and (309.5,172.7) .. (318,174) .. controls (326.5,175.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da8453334931293217] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (286,214) .. controls (296.54,206.09) and (345.5,170.7) .. (354,172) .. controls (362.5,173.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da5079195764877538] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (320,216) .. controls (330.54,208.09) and (379.5,172.7) .. (388,174) .. controls (396.5,175.3) and (403.54,114.09) .. (433,92) ;
+    %Curve Lines [id:da8271646687449208] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (518.66,217.98) .. controls (510.9,209.95) and (476.64,173.98) .. (480.66,175.31) .. controls (484.68,176.63) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da6033929929298949] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (525.63,215.95) .. controls (517.87,207.92) and (483.61,171.95) .. (487.63,173.27) .. controls (491.65,174.6) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da7047394504171489] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (537.42,217.98) .. controls (529.66,209.95) and (495.41,173.98) .. (499.43,175.31) .. controls (503.45,176.63) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da6505082289688271] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (548.95,219) .. controls (541.19,210.97) and (506.93,175) .. (510.95,176.32) .. controls (514.97,177.65) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da3291128010874702] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (555.92,216.97) .. controls (548.16,208.93) and (513.9,172.97) .. (517.92,174.29) .. controls (521.94,175.61) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da1520010028888894] 
+    \draw [color={rgb, 255:red, 74; green, 144; blue, 226 }  ,draw opacity=1 ]   (567.71,219) .. controls (559.95,210.97) and (525.69,175) .. (529.71,176.32) .. controls (533.73,177.65) and (453.68,115.45) .. (432,93) ;
+    %Curve Lines [id:da7481436423375991] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (142,215) .. controls (182,185) and (156,140) .. (196,110) ;
+    %Curve Lines [id:da00851059064414783] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (178,213) .. controls (218,183) and (193,157.86) .. (233,127.86) ;
+    %Curve Lines [id:da7905929568459347] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (212,215) .. controls (252,185) and (231,170) .. (271,140) ;
+    %Curve Lines [id:da5572121126151761] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (250,216) .. controls (290,186) and (141,131) .. (181,101) ;
+    %Curve Lines [id:da9639491981576338] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (286,214) .. controls (326,184) and (208,163) .. (248,133) ;
+    %Curve Lines [id:da32366690739652726] 
+    \draw [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ]   (320,216) .. controls (360,186) and (239,173) .. (279,143) ;
+
+    % Text Node
+    \draw (436,76.8) node [anchor=north west][inner sep=0.75pt]    {$s$};
+    % Text Node
+    \draw (276,9.8) node [anchor=north west][inner sep=0.75pt]    {$t$};
+    % Text Node
+    \draw (164,94.8) node [anchor=north west][inner sep=0.75pt]    {$v_{x_{1}}$};
+    % Text Node
+    \draw (213,126.8) node [anchor=north west][inner sep=0.75pt]    {$v_{x_{2}}$};
+    % Text Node
+    \draw (184,114.8) node [anchor=north west][inner sep=0.75pt]    {$v_{\overline{x}_{1}}$};
+    % Text Node
+    \draw (242,136.8) node [anchor=north west][inner sep=0.75pt]    {$v_{\overline{x}_{2}}$};
+    % Text Node
+    \draw (265,123.8) node [anchor=north west][inner sep=0.75pt]    {$\dotsc $};
+    % Text Node
+    \draw (124,291.8) node [anchor=north west][inner sep=0.75pt]    {$a_{1,1}$};
+    % Text Node
+    \draw (203,291.8) node [anchor=north west][inner sep=0.75pt]    {$a_{3,1}$};
+    % Text Node
+    \draw (169,256.8) node [anchor=north west][inner sep=0.75pt]    {$a_{2,1}$};
+    % Text Node
+    \draw (242,291.8) node [anchor=north west][inner sep=0.75pt]    {$a_{1,2}$};
+    % Text Node
+    \draw (308,292.8) node [anchor=north west][inner sep=0.75pt]    {$a_{3,2}$};
+    % Text Node
+    \draw (276,257.8) node [anchor=north west][inner sep=0.75pt]    {$a_{2,2}$};
+    % Text Node
+    \draw (116,209.8) node [anchor=north west][inner sep=0.75pt]    {$e_{1,1}$};
+    % Text Node
+    \draw (153,210.8) node [anchor=north west][inner sep=0.75pt]    {$e_{2,1}$};
+    % Text Node
+    \draw (187,211.8) node [anchor=north west][inner sep=0.75pt]    {$e_{3,1}$};
+    % Text Node
+    \draw (255,211.8) node [anchor=north west][inner sep=0.75pt]    {$e_{1,2}$};
+    % Text Node
+    \draw (292,212.8) node [anchor=north west][inner sep=0.75pt]    {$e_{2,1}$};
+    % Text Node
+    \draw (325,210.8) node [anchor=north west][inner sep=0.75pt]    {$e_{3,2}$};
+    % Text Node
+    \draw (378,247.8) node [anchor=north west][inner sep=0.75pt]    {$\dotsc $};
+    % Text Node
+    \draw (69,269.8) node [anchor=north west][inner sep=0.75pt]    {$garras\ \rightarrow $};
+    \end{tikzpicture}
+\end{figure}
+
+Observemos que $G$ tiene un triangulo, entonces $\chi(G) \> 3$, por lo que
+$$\chi(G) \< 3 \Leftrightarrow \chi(G) = 3$$
+
+Probemos primero:
+$$\chi(G) = 3 \Rightarrow B \text{ es satisfacible}$$
+
+Como $\chi (G) = 3$ entonces existe un coloreo propio de $G$ con $3$ colores, 
+llamemosle $C$.
+\medskip
+
+Necesitamos definir un vector $(b_{1},b_{2},\ldots ,b_{n}) \in \llaves{0,1}^{n}$ 
+tal que $B(\overrightarrow{b}) = 1$.
+\medskip
+
+Entonces, en base al coloreo $C$ definimos:
+$$b_{i}= \left\{ \begin{array}{lcc}
+    1 & \to & C(v_{x_{i}}) = C(s) \\
+    \\ 0& \to & c.c\\
+    \end{array}
+    \right.$$
+
+Queremos ver $B(\overrightarrow{b}) = 1$ basta ver que $D_{j}(\overrightarrow{b}) = 1\,\, \forall j$. 
+Entonces tomemos un $j$ cualquiera, como para todo $j$ los $a_{1,j}a_{2,j}a_{3,j}$ 
+forman un triangulo entonces los $3$ colores deben aparece ahí.
+\medskip
+
+En particular $\exists i: C(a_{i,j}) = C(t)$ (voy desde la garra hacia arriba). 
+\medskip
+
+Como $e_{i,j}a_{i,j} \in E \Rightarrow C(e_{i,j}) \neq C(t)$.
+\medskip
+
+Como $e_{i,j}s \in E \Rightarrow C(e_{i,j}) \neq C(s)$.
+\medskip
+
+Como $ts \in E \Rightarrow C(t) \neq C(s)$.
+\medskip
+
+Entonces $C(e_{i,j}) = \text{tercer color}$ (el color que es distinto del color de 
+$s$ y $t$).
+\medskip
+
+Ahora ya sabemos que color tienen los extremos de las garras. Entonces, vemos que
+$v_{l_{i},j}e_{i,j} \in E \Rightarrow C(v_{l_{i},j}) \neq C(e_{i,j}) = \text{tercer color}$.
+$\Rightarrow C(v_{l_{i},j}) = C(t)$ o $C(s)$
+\medskip
+
+Pero $tv_{l_{i},j} \in E \Rightarrow C(v_{l_{i},j})\neq C(t)$ entonces no queda 
+otra que $C(v_{l_{i},j}) = C(s)$ que es el candidato para cuando evalue en $b_{i}=1$.
+\medskip
+
+El $l_{i,j}$ es un literal por lo tanto es una variable o una negación. Veamos 
+primero el caso que es una variable:
+\medskip
+
+Entonces $\exists k : l_{i,j} = x_{k}$ entonces $v_{l_{i},j} = v_{x_{k}}$ a su vez 
+se da que $C(v_{l_{i},j}) = C(s) \Rightarrow C(v_{x_{k}}) = C(s) \Rightarrow b_{k} = 1$.
+\medskip
+
+Entonces $l_{i,j} = x_{k} \Rightarrow l_{i,j}(\overrightarrow{b}) = x_{k}(\overrightarrow{b}) = b_{k} = 1 \Rightarrow D_{j}(\overrightarrow{b}) = 1$.
+\medskip
+
+Supongamos ahora que es negación de una variable:
+$\exists k: l_{i,j} = \bar{x}_{k} \Rightarrow l_{i,j}(\overrightarrow{b}) = \bar{x}_{k}(\overrightarrow{b}) = 1 - b_{k}$
+
+Por $k: l_{i,j} = \bar{x}_{k}$ podemos decir que $C(s) = C(v_{l_{i},j}) = C(v_{\bar{x}_{k}})$
+\medskip
+
+Pero $v_{x_{k}}v_{\bar{x}_{k}} \in E \Rightarrow C(v_{x_{k}}) \neq C(v_{\bar{x}_{k}})$
+\medskip
+
+Como son distintos y $C(v_{\bar{x}_{k}}) = C(s)$ entonces $C(v_{x_{k}}) \neq C(s) \Rightarrow b_{k} = 0$
+\medskip
+
+Entonces $\bar{x}_{b}(\overrightarrow{b}) = 1-0 = 1$
+
+$(\Leftarrow)$ 
+
+$$B \text{ es satisfacible} \Rightarrow \chi(G) \< 3$$
+
+Supongamos $B$ satisfacible $\Rightarrow \exists \overrightarrow{b} \in \llaves{0,1}^{n} : B(\overrightarrow{b}) = 1$ 
+y hay que definir un coloreo a partir de esto. Entonces, debemos definir un coloreo 
+$C$.
+\medskip
+
+Definimos $C(s) = 1$ y $C(t) =2$. Hay que analizar si el coloreo es propio en cada caso.
+\medskip
+
+Entonces el lado $st$ no crea problemas $(NCP)$.
+\medskip
+
+Para los $v_{l}$ definimos, $C(v_{l}) = l(\overrightarrow{b})$, en otras palabras:
+\begin{align*}
+    C(v_{x_{i}}) &= b_{i} \in (0,1) \\
+    C(v_{\bar{x}_{i}}) &= 1 + b_{i} \in (0,1)
+\end{align*}
+
+Entonces hay que ver los casos:
+$$\underbrace{v_{x_{i}}}_{0\,\,\text{ó}\,\,1} \underbrace{v_{\bar{x}_{i}}}_{1\,\,\text{ó}\,\,0} \Rightarrow NCP $$
+
+$$\underbrace{v_{l}}_{0\,\,\text{ó}\,\,1} \underbrace{t}_{2} \Rightarrow NCP $$
+
+Ahora como $B(\overrightarrow{b}) = 1$ (esto hay que usarlo si o si) entonces 
+$D_{j}(\overrightarrow{b}) = 1\,\, \forall j$.
+\medskip
+
+$$\Rightarrow \forall j \exists i = i_{j} : l_{i_{j},j}(\overrightarrow{b}) = 1$$
+
+Si hay más de uno elijo uno por ejemplo el primero.
+\medskip
+
+Coloreamos los $a_{i,j}$ de la siguiente forma (base de la garra)
+\begin{align*}
+    C(a_{i_{j},j}) &= 2 \\
+    C(a_{i,j}) &= \text{le doy color $1$ a uno y $0$ al otro}
+\end{align*}
+
+Cómo los colores de las $a_{i,j}$ son $0,1,2$ entonces el triangulo $NCP$ y coloreamos 
+los $e's$ de la siguiente forma:
+$$C(e_{i,j})= \left\{ \begin{array}{lcc}
+    2 & \to & i \neq i_{j} \\
+    \\ 0& \to & i = i_{j}\\
+    \end{array}
+    \right.$$
+
+Chequeamos los lados:
+\begin{align*}
+    &i \neq i_{j} \to \underbrace{a_{i,j}}_{0\,\,\text{ó}\,\,1}\underbrace{e_{i,j}}_{2} \Rightarrow NCP \\
+    &i = i_{j} \to \underbrace{a_{i_{j},j}}_{2}\underbrace{e_{i_{j},j}}_{0} \Rightarrow NCP \\
+    &\underbrace{s}_{1}\underbrace{e_{i,j}}_{0\,\,\text{ó}\,\,2} \Rightarrow NCP \\
+    &\text{solo queda ver los}\,\, e_{i,j}v_{l_{i},j}\\
+    &i \neq i_{j} \to \underbrace{e_{i,j}}_{2}\underbrace{v_{l_{i},j}}_{0\,\,\text{ó}\,\,1} \Rightarrow NCP \\
+    &i = i_{j} \to \\
+    &C(e_{i_{j},j}) = 0\\
+    &C(v_{{l_{i_{j},j}}}) = l_{i_{j},j}(\overrightarrow{b}) = 1\\
+    &\text{es igual a $1$ por la elección del $i_{j}$}\\
+    &\Rightarrow \underbrace{e_{i,j}}_{0}\underbrace{v_{l_{i},j}}_{1} \Rightarrow NCP
+\end{align*}
+$\square$
+
+
+\end{document}
