@@ -1294,21 +1294,21 @@ Un código es lineal si es un subespacio vectorial de $\llaves{0,1}^{n}$.
 \begin{teorema} Si $H$ es matriz de chequeo de $C$, entonces:
     \begin{align*}
         \delta(C) &= \min\,\,\llaves{\text{número de columnas de $H$ que son LD}}\\
-        &= \min \llaves{r: \exists r\,\text{columnas LD de $H$}}
+        &= \min \llaves{j: \exists j\,\text{columnas LD de $H$}}
     \end{align*}
 \end{teorema}
 
 \underline{Prueba:}
 \medskip
 
-Sea $m = \min \llaves{r: \exists r\,\text{columnas LD de $H$}}$. Probaremos 
+Sea $m = \min \llaves{j: \exists j\,\text{columnas LD de $H$}}$. Probaremos 
 $\delta(C) \< m$ y luego $\delta(C) \> m$. Denotaremos la $j-$ésima columna de $H$ 
-por $H^{(j)}$. Por definición de $m$ existe $j_{1},\ldots j_{r}$ tal que 
-$H^{(j_{1})},\ldots, H^{(j_{r})}$ son LD.
+por $H^{(j)}$. Por definición de $m$ existe $j_{1},\ldots j_{m}$ tal que 
+$H^{(j_{1})},\ldots, H^{(j_{m})}$ son LD.
 \medskip
 
-Entonces existen $c_{1},\ldots, c_{r}$ no todos $0$ tales que:
-$$c_{1}H^{(j_{1})} + \cdots + c_{r}H^{(j_{r})} = 0$$
+Entonces existen $c_{1},\ldots, c_{m}$ no todos $0$ tales que:
+$$c_{1}H^{(j_{1})} + \cdots + c_{m}H^{(j_{m})} = 0$$
 
 Sea $e_{i} = (0,\ldots,0,1,0,\ldots,0)$ con $1$ en la posición $i$. Entonces:
 \begin{equation*}
@@ -1334,12 +1334,12 @@ Sea $e_{i} = (0,\ldots,0,1,0,\ldots,0)$ con $1$ en la posición $i$. Entonces:
 Es la columna $i-$ésima de $H$.
 \medskip
 
-Sea $x = c_{1}e_{j_{1}}+c_{2}e_{j_{2}}+\ldots + c_{r}e_{j_{r}}$, como no todos
+Sea $x = c_{1}e_{j_{1}}+c_{2}e_{j_{2}}+\ldots + c_{m}e_{j_{m}}$, como no todos
 los $c_{j}$ son $0$, entonces $x \neq 0$, por lo que:
 \begin{align*}
-    Hx^{t} &= H(c_{1}e_{j_{1}}^{t}+c_{2}e_{j_{2}}^{t}+\ldots + c_{r}e_{j_{r}}^{t})\\
-    &= c_{1}He_{j_{1}}^{t}+c_{2}He_{j_{2}}^{t}+\ldots + c_{r}He_{j_{r}}^{t} \\
-    &= c_{1}H^{(j_{1})} + c_{2}H^{(j_{2})} +\ldots + c_{r}H^{(j_{r})} = 0\\
+    Hx^{t} &= H(c_{1}e_{j_{1}}^{t}+c_{2}e_{j_{2}}^{t}+\ldots + c_{m}e_{j_{m}}^{t})\\
+    &= c_{1}He_{j_{1}}^{t}+c_{2}He_{j_{2}}^{t}+\ldots + c_{m}He_{j_{m}}^{t} \\
+    &= c_{1}H^{(j_{1})} + c_{2}H^{(j_{2})} +\ldots + c_{m}H^{(j_{m})} = 0\\
     &\Rightarrow Hx^{t} = 0 
 \end{align*}
 
