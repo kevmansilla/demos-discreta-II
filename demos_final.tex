@@ -762,6 +762,7 @@ Entonces con $C$ no propio. $\exists z,w : C(z) = C(w) \wedge zw \in E$.
 
 Sea $x = z_{0}, z_{1}, \ldots , z_{r} = z$ un camino de $x$ a $z$ en el arbol BFS
 y $x = w_{0}, w_{1}, \ldots , w_{t} = w$ otro camino de $x$ a $w$ en el arbol BFS.
+Y $w_{0} = z_{0}$ y $z_{r} \neq w_{t}$.
 \medskip
 
 Además $\exists i : w_{i} = z_{i} \wedge w_{i+1} \neq z_{i+1}$
@@ -1377,19 +1378,6 @@ La otra parte de la desigualdad. Sea $x\neq 0 : \delta(C) = |x|$, entonces:
     \end{itemize}}
     \label{dem:polinomio}
 \end{itemize}
-
-\begin{teorema} (Fundamental de código ciclico) Sea $C$ un código ciclico de 
-    longitud $n$ con generador $g(x)$ entonces:
-    \begin{itemize}
-        \item [1)] $C = \llaves{p(x)\in \mathbb{Z}_{2}(x):gr(p)<n \wedge g(x)|p(x)}$ por esto 
-            se dice que $C$ es generador (son los multiplicos de $g(x)$ de menor grado).
-        \item [2)] $C = \llaves{v(x)\odot g(x): v\in \mathbb{Z}_{2}(x)}$ son los multiplos 
-            de $g$ modulares.
-        \item [3)] Si $k=Dim(C)$ entonces $gr(g)=n-k$.
-        \item [4)] $g(x) | (1+x^{n})$.
-        \item [5)] Si $g(x) = g_{0} + g_{1}x + \ldots +$ entonces $g_{0}=1$.
-    \end{itemize}
-\end{teorema}
 
 \underline{Prueba:}
 \medskip
